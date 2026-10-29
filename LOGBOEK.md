@@ -509,3 +509,6 @@ browser-smoketest toonde een identieke landingspagina vóór en na.
 - Service worker-cache `moral-maps-static-v3`. Intro De Vreemde Ander: route gekozen en koers bijgesteld, vanuit de eigen GPS.
 - Lint en build groen vóór de merge. Productiebundle `index-lkOIyIn9.js` toont Kies 7 waarden, teller `/7`, de vijf waardenfamilies, STARR-lidwoord `het resultaat` en de rugzakvraag over achtergrond. Kompas blijft 3.
 
+## 2026-10-29
+- Kopie van moral-maps, basis voor versie 2.0.
+

@@ -4,7 +4,7 @@
 //
 //  OPSLAG:
 //  Alle voortgang blijft 100% lokaal op het toestel van de student
-//  (localStorage, één sleutel: "moralmaps_journey"). Er is geen
+//  (localStorage, één sleutel: "moralmaps2_journey"). Er is geen
 //  backend en er verlaat niets het apparaat.
 // ============================================================
 
@@ -25,7 +25,7 @@ const MENTOR_CONTACT = "je mentor of de studentendecaan";
 // ── Lokale opslag (localStorage) ─────────────────────────────
 // Eén sleutel bevat de volledige reis van de student op dit toestel.
 // Er is geen backend: niets verlaat het apparaat.
-const JOURNEY_KEY = "moralmaps_journey";
+const JOURNEY_KEY = "moralmaps2_journey";
 
 function parseJsonField(value, fallback) {
   if (value == null) return fallback;

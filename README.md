@@ -54,7 +54,7 @@ Deel 1 gebruikt **geen backend of database**. Alle voortgang van de student
 wordt lokaal op het toestel bewaard in `localStorage`, onder één sleutel:
 
 ```
-moralmaps_journey
+moralmaps2_journey
 ```
 
 Dit object bevat de volledige reis (groepscode, leeftijdscategorie, gekozen

@@ -1,9 +1,9 @@
 // Lichte service worker voor Moral Maps.
 // Doel: de app opent ook offline zodra hij één keer is bezocht.
 // Er wordt géén dynamische data gecachet — alle voortgang staat al lokaal
-// in localStorage ("moralmaps_journey").
+// in localStorage ("moralmaps2_journey").
 
-const CACHE = "moral-maps-static-v3";
+const CACHE = "moral-maps-2-static-v1";
 
 // Kernbestanden die we meteen bij installatie precachen.
 const CORE = [
