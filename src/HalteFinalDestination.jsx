@@ -6,17 +6,14 @@
 //  vóór ze doorgaan naar Final Destination.
 //
 //  Props:
-//    groupCode  — string, de groepscode
 //    onContinue — functie, wordt aangeroepen bij "Ga naar Deel 3"
 // ============================================================
 
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 const FONT_BODY    = "'DM Sans', system-ui, sans-serif";
 
-export default function HalteFinalDestination({ groupCode = "", onContinue }) {
-  const url = groupCode
-    ? `https://moral-maps-3-final-destination.vercel.app?code=${encodeURIComponent(groupCode.toUpperCase())}`
-    : "https://moral-maps-3-final-destination.vercel.app";
+export default function HalteFinalDestination({ onContinue }) {
+  const url = "https://moral-maps-3-final-destination.vercel.app";
 
   function handleGo() {
     if (onContinue) onContinue();
@@ -199,10 +196,6 @@ export default function HalteFinalDestination({ groupCode = "", onContinue }) {
             Ga naar Final Destination →
           </button>
         </div>
-
-        <p style={{ fontSize: 11, color: "#1e293b", marginTop: 16 }}>
-          Je groepscode wordt automatisch meegenomen
-        </p>
 
       </div>
     </div>

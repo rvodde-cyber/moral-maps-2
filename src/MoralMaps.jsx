@@ -18,6 +18,7 @@ import {
 } from "./handelen.js";
 import {
   LANDING,
+  PRIVACY_START,
   REISMODUS,
   REISGENOTEN,
   OVERSLAAN,
@@ -59,13 +60,34 @@ function parseProgressBag(raw) {
   return bag;
 }
 
+function createReisId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `reis-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+/** Alleen voor migratie van reizen vóór interne reisId. */
+function legacyJourneyHasProgress(parsed) {
+  if (!parsed || typeof parsed !== "object") return false;
+  if (parsed.reisId) return true;
+  if (parsed.groupCode) return true;
+  return Boolean(parsed.currentStage || parsed.savedAt);
+}
+
 function normalizeJourney(parsed) {
   if (!parsed || typeof parsed !== "object") return null;
+  if (!legacyJourneyHasProgress(parsed)) return null;
   return {
     ...parsed,
-    participantCode: String(parsed.participantCode || "").trim().toUpperCase(),
+    reisId: parsed.reisId || createReisId(),
     vreemdeAnder: parseProgressBag(parsed.vreemdeAnder),
   };
+}
+
+function journeyPayloadForStorage(snapshot) {
+  const { groupCode: _g, age: _a, participantCode: _p, ...rest } = snapshot || {};
+  return { ...rest, reisId: rest.reisId || createReisId() };
 }
 
 // Lees de volledige reis van dit toestel (of null als er niets staat).
@@ -82,9 +104,10 @@ function readJourney() {
 function writeJourney(snapshot) {
   if (typeof localStorage === "undefined") return false;
   try {
+    const cleaned = journeyPayloadForStorage(snapshot);
     localStorage.setItem(
       JOURNEY_KEY,
-      JSON.stringify({ ...snapshot, savedAt: new Date().toISOString() })
+      JSON.stringify({ ...cleaned, savedAt: new Date().toISOString() })
     );
     return true;
   } catch {
@@ -252,7 +275,6 @@ function pickRandomDilemmas(pool, count = 2) {
 }
 
 
-const AGE_CATS = ["<18","18-25","26-40","41-60","60+"];
 const FONT = "'DM Sans',system-ui,sans-serif";
 const STARR_MIN_CHARS = 15;
 const SOCIALISATIE_MIN_CHARS = 10;
@@ -448,13 +470,6 @@ const ASSET_IMAGES = {
   },
 };
 
-function generateParticipantCode(){
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let out = "MM-";
-  for(let i=0;i<6;i++) out += chars[Math.floor(Math.random()*chars.length)];
-  return out;
-}
-
 function restoreDilemmas(titles) {
   if (!Array.isArray(titles) || !titles.length) return null;
   const restored = titles.map((t) => DILEMMA_POOL.find((d) => d.title === t)).filter(Boolean);
@@ -475,7 +490,7 @@ function PrivacyNote({ context = "start" }) {
         🔒 <strong style={{ color: "#0f172a" }}>Privé op dit apparaat:</strong>{" "}
         {isStarr
           ? "Alles wat je invult blijft op dit apparaat. Er wordt niets verzonden of ergens vastgelegd. Zet toch geen herkenbare namen van collega's, cliënten of leerlingen in je STARR-verhaal."
-          : "Alles wat je invult blijft op dit apparaat. Er wordt niets verzonden of ergens vastgelegd. Zet geen herkenbare namen van anderen in je teksten."}
+          : PRIVACY_START}
       </p>
     </div>
   );
@@ -744,8 +759,8 @@ function SaveStatusChip({ status }) {
   );
 }
 
-function SessionCodeBar({ groupCode, age, saveStatus, onReset, reisModusLabel }) {
-  if (!groupCode) return null;
+function SessionCodeBar({ active, saveStatus, onReset, reisModusLabel }) {
+  if (!active) return null;
   return (
     <div className="mm-session-bar" style={{
       position: "sticky",
@@ -764,10 +779,9 @@ function SessionCodeBar({ groupCode, age, saveStatus, onReset, reisModusLabel })
           <div style={{ width: 38, height: 38, borderRadius: 10, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>📍</div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a", fontFamily: FONT }}>Moral Maps Roadtrip</div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>
-              Groep: {groupCode || "—"}{age ? ` · ${age}` : ""}
-              {reisModusLabel ? ` · ${reisModusLabel}` : ""}
-            </div>
+            {reisModusLabel ? (
+              <div style={{ fontSize: 10, color: "#94a3b8" }}>{reisModusLabel}</div>
+            ) : null}
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -1474,7 +1488,7 @@ function VreemdeAnder({coreVals, onComplete, onStepSave, initial}){
 
 // ── PDF Export ─────────────────────────────────────────────────
 
-function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, groupCode, age, extras = {}){
+function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, extras = {}){
   const { ankerzin, weekdoel, microJournal, reflectie1 } = extras;
   const c = CM[domColor];
   const date = new Date().toLocaleDateString('nl-NL', {day:'numeric',month:'long',year:'numeric'});
@@ -1521,7 +1535,7 @@ function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, groupCode, ag
       <div>
         <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:6px;">Moral Maps · Deel 1</p>
         <h1 style="color:#fff;">Reisverslag</h1>
-        <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px;">Groep: ${groupCode||'–'} · Leeftijd: ${age||'–'} · ${date}</p>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px;">${date}</p>
       </div>
       <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:10px 16px;text-align:center;">
         <p style="font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:1px;">Jouw dominante waardenkleur</p>
@@ -1565,7 +1579,7 @@ function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, groupCode, ag
   openPrintWindow(html);
 }
 
-function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankstop, omweg, deel2Inzicht, vreemdeAnderResult, groupCode, age, reflectie2}){
+function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankstop, omweg, deel2Inzicht, vreemdeAnderResult, reflectie2}){
   const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
     <title>Moral APS - Deel 2 Onderweg</title>
     <style>
@@ -1581,7 +1595,7 @@ function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankst
     </style></head><body>
     <div class="header">
       <h1 style="font-size:26px;font-weight:900;letter-spacing:-.6px;margin:0">Moral APS - Deel 2 (Onderweg)</h1>
-      <p style="opacity:.9;font-size:12px;margin-top:6px">Groep: ${groupCode || "-"} · Leeftijd: ${age || "-"} · ${new Date().toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"})}</p>
+      <p style="opacity:.9;font-size:12px;margin-top:6px">${new Date().toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"})}</p>
     </div>
     <div class="section">
       <div class="label">Kernwaarden (mee uit Deel 1)</div>
@@ -1624,7 +1638,7 @@ function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankst
   openPrintWindow(html);
 }
 
-function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, deel3Terugblik, deel3Vooruitblik, deel3Synthese, deel3Grow, domColor, socialisatie, profile, groupCode, age, reflectie3}){
+function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, deel3Terugblik, deel3Vooruitblik, deel3Synthese, deel3Grow, domColor, socialisatie, profile, reflectie3}){
   const c = CM[domColor];
   const html = `<!DOCTYPE html><html lang="${profile.locale || "nl"}"><head><meta charset="UTF-8">
     <title>Moral APS - Portfolio Deel 3</title>
@@ -1642,7 +1656,7 @@ function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, 
     </style></head><body>
     <div class="header">
       <h1 style="font-size:24px;font-weight:900;letter-spacing:-.5px;margin:0">Moral APS - Portfolio (tot en met Deel 3)</h1>
-      <p style="opacity:.85;font-size:12px;margin-top:6px">Groep: ${groupCode || "-"} · Leeftijd: ${age || "-"} · Context: ${profile.workContext || "algemeen"} · Taal: ${profile.locale || "nl"}</p>
+      <p style="opacity:.85;font-size:12px;margin-top:6px">Context: ${profile.workContext || "algemeen"} · Taal: ${profile.locale || "nl"}</p>
     </div>
     <div class="section"><div class="label">Kernwaarden</div><div>${(coreVals||[]).map(cv=>{const cc=CM[cv.color];return `<span class="chip" style="background:${cc.bg};border:1px solid ${cc.border};color:${cc.text}">${cv.name}</span>`;}).join("") || "<span class='value'>Niet ingevuld</span>"}</div></div>
     <div class="section"><div class="label">Jouw dominante waardenkleur</div><div class="dominant"><div class="value" style="font-weight:800;color:${c.text}">${c.label}</div><div class="value">${c.desc}</div></div></div>
@@ -1808,7 +1822,6 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
   let deel = "Deel I";
   if (stage.startsWith("deel3") || bag.screen === "deel3") deel = "Deel III";
   else if (stage.startsWith("deel2") || bag.screen === "deel2") deel = "Deel II";
-  const group = journey?.groupCode || "—";
   return (
     <div style={{minHeight:"100vh",background:"linear-gradient(180deg,#eef2ff,#f8fafc 38%)",fontFamily:FONT,display:"flex",alignItems:"center",justifyContent:"center",padding:"24px 16px"}}>
       <style>{RESPONSIVE_CSS}</style>
@@ -1816,7 +1829,7 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
         <div style={{fontSize:40,marginBottom:8}}>👋</div>
         <p style={{fontSize:11,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,margin:"0 0 6px"}}>Moral Maps Roadtrip</p>
         <h1 style={{margin:0,fontSize:26,fontWeight:900,letterSpacing:-.6,color:"#0f172a"}}>Welkom terug</h1>
-        <p style={{margin:"10px 0 0",fontSize:14,color:"#475569",lineHeight:1.7}}>We vonden een eerder gestarte reis op dit toestel (groep <strong>{group}</strong>, laatst bezig in <strong>{deel}</strong>). Wil je doorgaan waar je was gebleven?</p>
+        <p style={{margin:"10px 0 0",fontSize:14,color:"#475569",lineHeight:1.7}}>We vonden een eerder gestarte reis op dit toestel (laatst bezig in <strong>{deel}</strong>). Wil je doorgaan waar je was gebleven?</p>
         <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:18}}>
           <button onClick={onContinue} style={{width:"100%",padding:"13px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:800,fontSize:15,cursor:"pointer",boxShadow:`0 4px 20px ${TEAL_GLOW}`,fontFamily:FONT}}>Ga verder →</button>
           {onHome && (
@@ -1830,20 +1843,7 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
   );
 }
 
-function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3, initialGroup="", initialAge=""}){
-  const [gc,setGc]=useState(initialGroup);
-  const [age,setAge]=useState(initialAge);
-  const [startHint, setStartHint] = useState("");
-  const canStart = gc.trim() && age;
-  function runStart(action){
-    if(!canStart){
-      setStartHint("Vul eerst groepscode en leeftijd in, daarna kun je direct starten.");
-      return;
-    }
-    setStartHint("");
-    action(gc.trim().toUpperCase(), age);
-  }
-
+function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3}){
   return(
     <div style={{minHeight:"100vh",background:"linear-gradient(180deg,#eef2ff,#f8fafc 38%)",fontFamily:FONT}}>
       <style>{RESPONSIVE_CSS}</style>
@@ -1902,39 +1902,22 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3, initialGroup=""
         </div>
 
         <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:18,marginBottom:16}}>
-          <div className="mm-form-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
-            <div>
-              <label style={{display:"block",fontSize:10,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,marginBottom:6}}>Groepscode</label>
-              <input value={gc} onChange={e=>setGc(e.target.value)} placeholder="bijv. HBO25A" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #d1d5db",fontFamily:"'DM Mono',monospace",letterSpacing:1}}/>
-              <p style={{margin:"8px 0 0",fontSize:11,color:"#64748b",lineHeight:1.6}}>Je docent geeft je een groepscode. Daarmee vindt de app je voortgang terug op dit toestel. Je naam is niet nodig.</p>
-            </div>
-            <div>
-              <label style={{display:"block",fontSize:10,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,marginBottom:6}}>Leeftijdscategorie</label>
-              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                {AGE_CATS.map(a=>(
-                  <button key={a} onClick={()=>setAge(a)} style={{padding:"7px 11px",borderRadius:99,border:`1.5px solid ${age===a?TEAL:"#d1d5db"}`,background:age===a?TEAL:"#fff",color:age===a?"#fff":"#475569",fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:FONT}}>{a}</button>
-                ))}
-              </div>
-            </div>
-          </div>
-          <p style={{margin:0,fontSize:11,color:"#64748b"}}>Vul groepscode + leeftijd in om direct een deel te starten.</p>
           <PrivacyNote />
           <DeviceWarning style={{marginTop:12}} />
-          {startHint && <p style={{margin:"8px 0 0",fontSize:11,color:"#b45309",fontWeight:700}}>⚠ {startHint}</p>}
         </div>
 
         <div className="mm-trilogie-parts" style={{display:"grid",gridTemplateColumns:"repeat(3, minmax(0, 1fr))",gap:12,marginBottom:16}}>
-          <button type="button" onClick={()=>runStart(onStartDeel1)} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
+          <button type="button" onClick={()=>onStartDeel1()} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
             <p style={{margin:0,fontSize:10,fontWeight:800,color:"#6366f1",textTransform:"uppercase",letterSpacing:1}}>I: The Beginning</p>
             <p style={{margin:"5px 0 0",fontSize:14,fontWeight:900,color:"#0f172a"}}>Start Deel I</p>
             <p style={{margin:"6px 0 0",fontSize:12,color:"#64748b",lineHeight:1.6}}>Ontdek waar je staat en welke waarden jou richting geven. <span style={{color:"#94a3b8"}}>(± 25 min)</span></p>
           </button>
-          <button onClick={()=>runStart(onStartDeel2)} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
+          <button onClick={()=>onStartDeel2()} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
             <p style={{margin:0,fontSize:10,fontWeight:800,color:"#0ea5e9",textTransform:"uppercase",letterSpacing:1}}>II: Crossroads</p>
             <p style={{margin:"5px 0 0",fontSize:14,fontWeight:900,color:"#0f172a"}}>Werk aan Deel II</p>
             <p style={{margin:"6px 0 0",fontSize:12,color:"#64748b",lineHeight:1.6}}>Onderzoek hoe je kiest als de weg zich splitst. <span style={{color:"#94a3b8"}}>(± 30 min)</span></p>
           </button>
-          <button onClick={()=>runStart(onStartDeel3)} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
+          <button onClick={()=>onStartDeel3()} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
             <p style={{margin:0,fontSize:10,fontWeight:800,color:"#16a34a",textTransform:"uppercase",letterSpacing:1}}>III: Final Destination</p>
             <p style={{margin:"5px 0 0",fontSize:14,fontWeight:900,color:"#0f172a"}}>Werk aan Deel III</p>
             <p style={{margin:"6px 0 0",fontSize:12,color:"#64748b",lineHeight:1.6}}>Kijk terug, kies je koers en maak een concreet plan. <span style={{color:"#94a3b8"}}>(± 35 min)</span></p>
@@ -1956,9 +1939,7 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3, initialGroup=""
 
 export default function MoralMaps(){
   const [screen,setScreen]=useState("roadtrip-landing");
-  const [participantCode,setParticipantCode]=useState("");
-  const [groupCode,setGroupCode]=useState("");
-  const [age,setAge]=useState("");
+  const [reisId,setReisId]=useState("");
   const [phase,setPhase]=useState(0); // 0=privilege, 1=kaart, 2=gps, 3=dilemma's, 4=starr
   const [selVals,setSelVals]=useState([]);
   const [coreVals,setCoreVals]=useState([]);
@@ -2045,7 +2026,7 @@ export default function MoralMaps(){
 
   useEffect(()=>{
     snapshotRef.current = {
-      participantCode, groupCode, age, screen, phase, selVals, coreVals, dilResp, curDil,
+      reisId, screen, phase, selVals, coreVals, dilResp, curDil,
       dilemmas, starr, socialisatiePayload, bridge, deel3Terugblik, deel3Vooruitblik,
       deel3Synthese, deel3Grow, deel2Step, deel3Step, crossroadsChoice, crossroadsReflectie,
       tankstop, omweg, deel2Inzicht, vreemdeAnderResult, smsChoice, smsReflection, domColor,
@@ -2081,8 +2062,7 @@ export default function MoralMaps(){
   // Bouwt het volledige reis-object uit de huidige (of overschreven) state.
   function buildJourneyPayload(currentStage, overrides = {}) {
     const s = snapshotRef.current;
-    const participant = String(overrides.participantCode ?? s.participantCode ?? "").trim().toUpperCase();
-    const group = String(overrides.groupCode ?? s.groupCode ?? "").trim().toUpperCase();
+    const id = String(overrides.reisId ?? s.reisId ?? "").trim() || createReisId();
 
     const coreValues = overrides.coreValues ?? s.coreVals;
     const dilemmaResponses = overrides.dilemmaResponses ?? s.dilResp;
@@ -2113,10 +2093,8 @@ export default function MoralMaps(){
     };
 
     return {
-      participantCode: participant,
+      reisId: id,
       currentStage,
-      groupCode: group,
-      age: overrides.age ?? s.age,
       coreValues,
       dilemmaResponses,
       starr: overrides.starr ?? s.starr,
@@ -2133,7 +2111,7 @@ export default function MoralMaps(){
   // verlaat het apparaat.
   function persistSession(currentStage, overrides = {}) {
     const payload = buildJourneyPayload(currentStage, overrides);
-    if (!payload.groupCode) return { ok: false, error: "missing group code" };
+    if (!payload.reisId) return { ok: false, error: "missing reis id" };
     const ok = journey.write(payload);
     setSaveStatus(ok ? "saved" : null);
     return { ok };
@@ -2142,14 +2120,25 @@ export default function MoralMaps(){
   // Bij het laden: staat er al een reis op dit toestel? Zo ja, bied
   // "Welkom terug" aan (zonder dat er een code nodig is).
   useEffect(() => {
-    const existing = journey.read();
-    if (existing && existing.groupCode) setPendingJourney(existing);
+    if (typeof localStorage === "undefined") return;
+    try {
+      const raw = JSON.parse(localStorage.getItem(JOURNEY_KEY) || "null");
+      if (!raw) return;
+      const normalized = normalizeJourney(raw);
+      if (!normalized) return;
+      if (raw.groupCode || raw.age != null || raw.participantCode) {
+        journey.write(normalized);
+      }
+      setPendingJourney(normalized);
+    } catch {
+      /* ignore */
+    }
   }, [journey]);
 
   // Continu-opslag: elke wijziging in een actief deel wordt direct lokaal
   // bewaard, zodat er binnen één browsersessie nooit voortgang verloren gaat.
   useEffect(() => {
-    if (!groupCode) return;
+    if (!reisId) return;
     if (screen !== "app" && screen !== "deel2" && screen !== "deel3") return;
     const stage =
       screen === "deel2" ? `deel2_step_${deel2Step}` :
@@ -2159,7 +2148,7 @@ export default function MoralMaps(){
     if (ok) setSaveStatus("saved");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    groupCode, age, screen, phase, deel2Step, deel3Step, selVals, coreVals, dilResp,
+    reisId, screen, phase, deel2Step, deel3Step, selVals, coreVals, dilResp,
     curDil, starr, socialisatiePayload, bridge, deel3Terugblik, deel3Vooruitblik,
     deel3Synthese, deel3Grow, crossroadsChoice, crossroadsReflectie, tankstop, omweg,
     deel2Inzicht, vreemdeAnderResult, smsChoice, smsReflection, reflectie1, reflectie2, reflectie3,
@@ -2168,9 +2157,7 @@ export default function MoralMaps(){
 
   function applyLoadedSession(data) {
     const bag = parseProgressBag(data.vreemdeAnder);
-    setParticipantCode(data.participantCode || "");
-    setGroupCode(data.groupCode || "");
-    setAge(data.age || "");
+    setReisId(data.reisId || createReisId());
     setCoreVals(data.coreValues || []);
     setDilResp(data.dilemmaResponses || []);
     const hydrated = hydrateFromSocialisatie(data.socialisatie);
@@ -2242,12 +2229,18 @@ export default function MoralMaps(){
     if(target<3)setCurDil(0);
   }
 
-  function start(gc,ag){
-    setParticipantCode(generateParticipantCode());
-    setGroupCode(gc);
-    setAge(ag);
+  function ensureActiveReisId() {
+    const id = reisId || journey.read()?.reisId || createReisId();
+    if (id !== reisId) setReisId(id);
+    return id;
+  }
+
+  function start(){
+    const id = ensureActiveReisId();
     setScreen("app");
     setPhase(0);
+    setPendingJourney(null);
+    persistSession("phase_0", { reisId: id, screen: "app", phase: 0 });
   }
   // Probeer een bestaande lokale reis met kernwaarden op te pikken i.p.v.
   // een nieuwe (voorbeeld)sessie te starten. Retourneert true bij succes.
@@ -2262,7 +2255,7 @@ export default function MoralMaps(){
     }
     return false;
   }
-  function startDeel2Direct(gc, ag){
+  function startDeel2Direct(){
     if(coreVals.length===0){
       if(pickUpLocalJourney("deel2")) return;
       const ok = window.confirm(
@@ -2275,14 +2268,13 @@ export default function MoralMaps(){
         { id: 24, name: "Reflectie", color: "groen" },
       ]);
     }
-    setParticipantCode(generateParticipantCode());
-    setGroupCode(gc);
-    setAge(ag);
+    ensureActiveReisId();
     setScreen("deel2");
     setDeel2Step(0);
     setPendingJourney(null);
+    persistSession("deel2_step_0", { screen: "deel2", deel2Step: 0 });
   }
-  function startDeel3Direct(gc, ag){
+  function startDeel3Direct(){
     if(coreVals.length===0){
       if(pickUpLocalJourney("deel3")) return;
       const ok = window.confirm(
@@ -2295,13 +2287,12 @@ export default function MoralMaps(){
         { id: 24, name: "Reflectie", color: "groen" },
       ]);
     }
-    setParticipantCode(generateParticipantCode());
-    setGroupCode(gc);
-    setAge(ag);
+    ensureActiveReisId();
     setScreen("deel3");
     setPendingJourney(null);
+    persistSession("deel3_step_0", { screen: "deel3", deel3Step: 0 });
   }
-  function reset(){setScreen("roadtrip-landing");setParticipantCode("");setGroupCode("");setAge("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
+  function reset(){setScreen("roadtrip-landing");setReisId("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
   // Enige, volledige manier om alle lokale gegevens te verwijderen.
   function wipeDevice(){
     const ok = window.confirm("Weet je zeker dat je al je gegevens van dit toestel wilt wissen? Dit verwijdert je volledige voortgang en kan niet ongedaan worden gemaakt.");
@@ -2399,14 +2390,13 @@ export default function MoralMaps(){
   );
 
   if(screen==="roadtrip-landing") {
-    const hasExistingTrip = Boolean(journey.read()?.groupCode);
+    const hasExistingTrip = Boolean(journey.read()?.reisId);
     return <RoadtripLanding onStart={()=>setScreen("trilogie-home")} hasExistingTrip={hasExistingTrip} />;
   }
 
   if(screen==="trilogie-home" && pendingJourney)return <WelcomeBack journey={pendingJourney} onContinue={()=>{applyLoadedSession(pendingJourney);setPendingJourney(null);}} onRestart={wipeDevice} onHome={()=>setPendingJourney(null)}/>;
   if(screen==="trilogie-home"){
-    const saved = journey.read();
-    return <TrilogieHome initialGroup={saved?.groupCode||""} initialAge={saved?.age||""} onStartDeel1={start} onStartDeel2={startDeel2Direct} onStartDeel3={startDeel3Direct}/>;
+    return <TrilogieHome onStartDeel1={start} onStartDeel2={startDeel2Direct} onStartDeel3={startDeel3Direct}/>;
   }
 
   if(showReflectie1) return (
@@ -2436,7 +2426,7 @@ export default function MoralMaps(){
     </div>
   );
 
-  if(showHalteCrossroads)return <HalteCrossroads coreValues={coreVals} groupCode={groupCode} onContinue={()=>{setShowHalteCrossroads(false);setScreen("deel2");setDeel2Step(0);}}/>;
+  if(showHalteCrossroads)return <HalteCrossroads coreValues={coreVals} onContinue={()=>{setShowHalteCrossroads(false);setScreen("deel2");setDeel2Step(0);}}/>;
   if(screen==="deel2"){
     const crossroadsOptions = [
       "Snelle, vertrouwde route direct naar je bestemming",
@@ -2446,7 +2436,7 @@ export default function MoralMaps(){
     ];
     return (
       <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-        <SessionCodeBar groupCode={groupCode} age={age} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
         <div style={{maxWidth:880,margin:"0 auto",padding:"16px 16px 60px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
             <button onClick={()=>setScreen("trilogie-home")} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:999,padding:"8px 14px",cursor:"pointer",fontWeight:700,color:"#334155",fontFamily:FONT}}>← Terug</button>
@@ -2591,7 +2581,7 @@ export default function MoralMaps(){
                 <p style={{fontSize:11,color:"#86efac",margin:"6px 0 0"}}>{deel2Inzicht.trim().length > 0 ? "✓ Ingevuld — je kunt nu verder naar Deel 3" : "Optioneel — je kunt ook direct doorgaan"}</p>
               </div>
               <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                <button onClick={()=>exportPDFDeel2({coreVals,crossroadsChoice,crossroadsReflectie,tankstop,omweg,deel2Inzicht,vreemdeAnderResult,groupCode,age,reflectie2})} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF/Print Deel 2</button>
+                <button onClick={()=>exportPDFDeel2({coreVals,crossroadsChoice,crossroadsReflectie,tankstop,omweg,deel2Inzicht,vreemdeAnderResult,reflectie2})} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF/Print Deel 2</button>
                 <button onClick={()=>setDeel2Step(0)} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↺ Opnieuw Deel 2</button>
                 <button onClick={async ()=>{await persistSession("deel2_done",{deel2Inzicht,screen:"deel2"});setShowReflectie2(true);}} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>✨ Afsluiten & verder →</button>
               </div>
@@ -2629,7 +2619,7 @@ export default function MoralMaps(){
     </div>
   );
 
-  if(showHalteFinal)return <HalteFinalDestination groupCode={groupCode} onContinue={()=>{setShowHalteFinal(false);setScreen("deel3");}}/>;
+  if(showHalteFinal)return <HalteFinalDestination onContinue={()=>{setShowHalteFinal(false);setScreen("deel3");}}/>;
   if(screen==="deel3"){
     const D3_PINK = "#d4537e";
     const D3_PINK_LIGHT = "rgba(212,83,126,.08)";
@@ -2641,7 +2631,7 @@ export default function MoralMaps(){
     });
     return (
       <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-        <SessionCodeBar groupCode={groupCode} age={age} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
         <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
           {/* Header */}
@@ -2802,7 +2792,7 @@ export default function MoralMaps(){
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:16}}>
                 <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                   <button onClick={async()=>{await saveProgress("deel3_done");setShowReflectie3(true);}} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:D3_PINK,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>✨ Afsluiten & opslaan</button>
-                  <button onClick={()=>exportPDFDeel3Portfolio({coreVals,dilResp,starr,smsDilemma:{smsChoice,smsReflection},bridge,deel3Terugblik,deel3Vooruitblik,deel3Synthese,deel3Grow,domColor,socialisatie,profile:contentProfile,groupCode,age,reflectie3})} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF Totaalportfolio</button>
+                  <button onClick={()=>exportPDFDeel3Portfolio({coreVals,dilResp,starr,smsDilemma:{smsChoice,smsReflection},bridge,deel3Terugblik,deel3Vooruitblik,deel3Synthese,deel3Grow,domColor,socialisatie,profile:contentProfile,reflectie3})} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF Totaalportfolio</button>
                 </div>
               </div>
             </div>
@@ -2818,7 +2808,7 @@ export default function MoralMaps(){
   return(
     <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
-      <SessionCodeBar groupCode={groupCode} age={age} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+      <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
       <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
         {deel1Onboarding === "reismodus" && (
@@ -3292,7 +3282,7 @@ export default function MoralMaps(){
               <textarea value={ankerzin} onChange={(e)=>setAnkerzin(e.target.value)} rows={2} placeholder={formatAnkerzin(coreVals)} style={{width:"100%",padding:"10px 12px",borderRadius:10,border:`1.5px solid ${TEAL}60`,fontSize:14,lineHeight:1.6,resize:"vertical",fontFamily:FONT,marginBottom:12}}/>
               <label style={{fontSize:11,fontWeight:700,color:"#64748b",display:"block",marginBottom:6}}>Weekdoel — wanneer ik onder druk sta, wil ik handelen vanuit…</label>
               <input type="text" value={weekdoel} onChange={(e)=>setWeekdoel(e.target.value)} maxLength={200} placeholder="Bijv. empathie en eerlijkheid, ook als het ongemakkelijk is" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:13,fontFamily:FONT}}/>
-              {groupCode&&(
+              {reisId&&(
                 <button type="button" onClick={()=>saveProgress("deel1_done")} style={{marginTop:12,padding:"8px 14px",borderRadius:99,border:`1px solid ${TEAL}50`,background:TEAL_LIGHT,color:TEAL,fontWeight:700,fontSize:11,cursor:"pointer",fontFamily:FONT}}>
                   💾 Sla ankerzin & doel op
                 </button>
@@ -3334,7 +3324,7 @@ export default function MoralMaps(){
             </div>
             <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
               <button onClick={()=>setShowReflectie1(true)} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT,minWidth:140}}>✨ Afsluiten & verder →</button>
-              <button onClick={()=>exportPDF(coreVals,dilResp,starr,{smsChoice,smsReflection},domColor,groupCode,age,{ankerzin:ankerzin||formatAnkerzin(coreVals),weekdoel,microJournal,reflectie1})} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",boxShadow:`0 4px 12px ${TEAL_GLOW}`,fontFamily:FONT,minWidth:140}}>↓ Download PDF</button>
+              <button onClick={()=>exportPDF(coreVals,dilResp,starr,{smsChoice,smsReflection},domColor,{ankerzin:ankerzin||formatAnkerzin(coreVals),weekdoel,microJournal,reflectie1})} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",boxShadow:`0 4px 12px ${TEAL_GLOW}`,fontFamily:FONT,minWidth:140}}>↓ Download PDF</button>
               <button onClick={wipeDevice} style={{flex:1,padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>🗑 Wis mijn gegevens</button>
             </div>
           </div>

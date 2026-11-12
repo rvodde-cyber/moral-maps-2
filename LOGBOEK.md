@@ -515,4 +515,5 @@ browser-smoketest toonde een identieke landingspagina vóór en na.
 ## 2026-11-12
 - Sprint 0 · Fundament: naam Moral Maps Roadtrip, reismodus, reisgenoten, Verdieping, Steuntje, teksten in zuidroute-teksten.js.
 - Nieuwe landingspagina met Firefly-foto's.
+- Groepscode en leeftijd verwijderd; interne reisId.
 
