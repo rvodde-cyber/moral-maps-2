@@ -1,3 +1,12 @@
+export const LANDING = {
+  klein: "Moral Maps",
+  titel: "Road",
+  titelCursief: "trip",
+  ondertitel: "Waar sta jij voor, en waar wil je heen?",
+  knopNieuw: "Start je roadtrip",
+  knopTerug: "Verder met je roadtrip",
+};
+
 export const REISMODUS = {
   vraag: "Hoe ga je op reis?",
   opties: [

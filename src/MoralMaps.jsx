@@ -17,6 +17,7 @@ import {
   computeHandelenProfiel,
 } from "./handelen.js";
 import {
+  LANDING,
   REISMODUS,
   REISGENOTEN,
   OVERSLAAN,
@@ -1674,7 +1675,6 @@ function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, 
 // ── Landing ────────────────────────────────────────────────────
 
 const ROADTRIP_LANDING_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap');
 .mm-rt-root *,.mm-rt-root *::before,.mm-rt-root *::after{box-sizing:border-box}
 .mm-rt-root{margin:0;min-height:100vh;font-family:'DM Sans',system-ui,sans-serif;background:#14203A;color:#FBF3E6}
 .mm-rt-hero{position:relative;min-height:100vh;overflow:hidden}
@@ -1709,7 +1709,8 @@ const ROADTRIP_LANDING_CSS = `
 }
 `;
 
-function RoadtripLanding({ onStart }) {
+function RoadtripLanding({ onStart, hasExistingTrip }) {
+  const knopLabel = hasExistingTrip ? LANDING.knopTerug : LANDING.knopNieuw;
   return (
     <div className="mm-rt-root">
       <style>{ROADTRIP_LANDING_CSS}</style>
@@ -1724,13 +1725,14 @@ function RoadtripLanding({ onStart }) {
         <div className="mm-rt-shade" aria-hidden="true" />
 
         <div className="mm-rt-copy">
-          <p className="mm-rt-eyebrow">Moral Maps</p>
+          <p className="mm-rt-eyebrow">{LANDING.klein}</p>
           <h1 className="mm-rt-h1">
-            Road<em>trip</em>
+            {LANDING.titel}
+            <em>{LANDING.titelCursief}</em>
           </h1>
-          <p className="mm-rt-sub">Waar sta jij voor, en waar wil je heen?</p>
+          <p className="mm-rt-sub">{LANDING.ondertitel}</p>
           <button type="button" className="mm-rt-start" onClick={onStart}>
-            Start je roadtrip
+            {knopLabel}
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M5 12h14" />
               <path d="M13 6l6 6-6 6" />
@@ -2396,7 +2398,10 @@ export default function MoralMaps(){
     </div>
   );
 
-  if(screen==="roadtrip-landing") return <RoadtripLanding onStart={()=>setScreen("trilogie-home")} />;
+  if(screen==="roadtrip-landing") {
+    const hasExistingTrip = Boolean(journey.read()?.groupCode);
+    return <RoadtripLanding onStart={()=>setScreen("trilogie-home")} hasExistingTrip={hasExistingTrip} />;
+  }
 
   if(screen==="trilogie-home" && pendingJourney)return <WelcomeBack journey={pendingJourney} onContinue={()=>{applyLoadedSession(pendingJourney);setPendingJourney(null);}} onRestart={wipeDevice} onHome={()=>setPendingJourney(null)}/>;
   if(screen==="trilogie-home"){
@@ -2812,7 +2817,7 @@ export default function MoralMaps(){
   // ── APP ──
   return(
     <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
       <SessionCodeBar groupCode={groupCode} age={age} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
       <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
