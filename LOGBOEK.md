@@ -512,3 +512,6 @@ browser-smoketest toonde een identieke landingspagina vóór en na.
 ## 2026-10-29
 - Kopie van moral-maps, basis voor versie 2.0.
 
+## 2026-11-12
+- Sprint 0 · Fundament: reismodus, reisgenoten, Verdieping, Steuntje, teksten in zuidroute-teksten.js.
+
