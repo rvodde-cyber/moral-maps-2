@@ -7,7 +7,6 @@
 //
 //  Props:
 //    coreValues  — array van kernwaarden uit deel 1 [{name, color}]
-//    groupCode   — string, de groepscode
 //    onContinue  — functie, wordt aangeroepen bij "Ga naar Deel 2"
 // ============================================================
 
@@ -22,10 +21,8 @@ const COLOR_MAP = {
   wit:   { solid: "#94A3B8", bg: "rgba(148,163,184,.15)", border: "rgba(148,163,184,.3)" },
 };
 
-export default function HalteCrossroads({ coreValues = [], groupCode = "", onContinue }) {
-  const url = groupCode
-    ? `https://moral-maps-2-crossroads.vercel.app?code=${encodeURIComponent(groupCode.toUpperCase())}`
-    : "https://moral-maps-2-crossroads.vercel.app";
+export default function HalteCrossroads({ coreValues = [], onContinue }) {
+  const url = "https://moral-maps-2-crossroads.vercel.app";
 
   function handleGo() {
     if (onContinue) onContinue();
@@ -211,10 +208,6 @@ export default function HalteCrossroads({ coreValues = [], groupCode = "", onCon
             Ga naar Crossroads →
           </button>
         </div>
-
-        <p style={{ fontSize: 11, color: "#1e293b", marginTop: 16 }}>
-          Je groepscode wordt automatisch meegenomen
-        </p>
 
       </div>
     </div>

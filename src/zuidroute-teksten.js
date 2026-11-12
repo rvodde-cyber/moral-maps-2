@@ -1,3 +1,6 @@
+export const PRIVACY_START =
+  "Je hoeft geen naam, leeftijd of groepscode in te vullen. Alles wat je invult, blijft op dit toestel.";
+
 export const LANDING = {
   klein: "Moral Maps",
   titel: "Road",
