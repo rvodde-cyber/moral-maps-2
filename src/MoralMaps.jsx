@@ -17,6 +17,7 @@ import {
   computeHandelenProfiel,
 } from "./handelen.js";
 import {
+  LANDING,
   REISMODUS,
   REISGENOTEN,
   OVERSLAAN,
@@ -1673,6 +1674,134 @@ function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, 
 
 // ── Landing ────────────────────────────────────────────────────
 
+const ROADTRIP_LANDING_CSS = `
+.mm-rt-root *,.mm-rt-root *::before,.mm-rt-root *::after{box-sizing:border-box}
+.mm-rt-root{margin:0;min-height:100vh;font-family:'DM Sans',system-ui,sans-serif;background:#14203A;color:#FBF3E6}
+.mm-rt-hero{position:relative;min-height:100vh;overflow:hidden}
+.mm-rt-land,.mm-rt-land img{position:absolute;inset:0;width:100%;height:100%}
+.mm-rt-land img{object-fit:cover;object-position:50% 70%}
+.mm-rt-shade{position:absolute;inset:0;background:linear-gradient(100deg,rgba(9,15,30,.62) 0%,rgba(9,15,30,.25) 45%,rgba(9,15,30,0) 65%)}
+.mm-rt-copy{position:relative;z-index:2;padding:15vh 0 0 8vw;max-width:640px}
+.mm-rt-eyebrow{font-size:15px;letter-spacing:6px;text-transform:uppercase;font-weight:700;color:#F2C27E;margin:0 0 6px}
+.mm-rt-h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:clamp(72px,11vw,148px);line-height:.92;letter-spacing:-2px;color:#FBF3E6;margin:0}
+.mm-rt-h1 em{font-style:italic;color:#F2C27E}
+.mm-rt-sub{font-size:clamp(18px,1.8vw,24px);line-height:1.45;color:#E9DCC4;margin:22px 0 36px;max-width:440px}
+.mm-rt-start{display:inline-flex;align-items:center;gap:12px;height:60px;padding:0 30px;border-radius:999px;background:#B8471F;color:#fff;font-weight:700;font-size:18px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.mm-rt-start:hover{background:#9E3B17}
+.mm-rt-phone{position:absolute;z-index:2;right:9vw;top:11vh;width:300px;height:620px;border-radius:46px;background:#141B2A;padding:12px;box-shadow:0 50px 90px rgba(0,0,0,.55),inset 0 0 0 2px #2D3A52;transform:rotate(4deg)}
+.mm-rt-notch{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:90px;height:22px;border-radius:999px;background:#0B0F18;z-index:3}
+.mm-rt-screen{height:100%;border-radius:36px;overflow:hidden;background:#F3E6CF;color:#2A2118;display:flex;flex-direction:column}
+.mm-rt-scr-head{display:flex;justify-content:space-between;align-items:baseline;padding:52px 18px 8px}
+.mm-rt-scr-title{font-family:'DM Serif Display',Georgia,serif;font-size:24px;margin:0}
+.mm-rt-scr-meta{font-size:11px;font-weight:700;color:#6B5A48}
+.mm-rt-scr-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:0 18px 6px}
+.mm-rt-scr-bar i{display:block;height:5px;border-radius:3px;background:#E2D3BC;font-style:normal}
+.mm-rt-scr-card{margin:auto 12px 14px;background:#FFFAF1;border:1px solid #E2D3BC;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.mm-rt-scr-card span{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:#6B5A48}
+.mm-rt-scr-card b{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:18px}
+.mm-rt-scr-card i{font-style:normal;align-self:flex-start;margin-top:4px;background:#2A2118;color:#FBF3E6;font-size:12px;font-weight:700;border-radius:999px;padding:7px 14px}
+@media (max-width:900px){
+  .mm-rt-land img{object-position:42% 50%}
+  .mm-rt-shade{background:linear-gradient(180deg,rgba(9,15,30,.55) 0%,rgba(9,15,30,.15) 45%,rgba(9,15,30,0) 60%)}
+  .mm-rt-phone{display:none}
+  .mm-rt-copy{padding:12vh 28px 0;text-align:center;margin:0 auto}
+  .mm-rt-sub{margin-left:auto;margin-right:auto}
+}
+`;
+
+function RoadtripLanding({ onStart, hasExistingTrip }) {
+  const knopLabel = hasExistingTrip ? LANDING.knopTerug : LANDING.knopNieuw;
+  return (
+    <div className="mm-rt-root">
+      <style>{ROADTRIP_LANDING_CSS}</style>
+      <main className="mm-rt-hero">
+        <picture className="mm-rt-land">
+          <source media="(max-width: 900px)" srcSet="/images/roadtrip-hero-mobiel.jpg" />
+          <img
+            src="/images/roadtrip-hero-desktop.jpg"
+            alt="Een slingerende weg met cipressen door heuvels bij dageraad, een auto met brandende achterlichten rijdt richting de bergen"
+          />
+        </picture>
+        <div className="mm-rt-shade" aria-hidden="true" />
+
+        <div className="mm-rt-copy">
+          <p className="mm-rt-eyebrow">{LANDING.klein}</p>
+          <h1 className="mm-rt-h1">
+            {LANDING.titel}
+            <em>{LANDING.titelCursief}</em>
+          </h1>
+          <p className="mm-rt-sub">{LANDING.ondertitel}</p>
+          <button type="button" className="mm-rt-start" onClick={onStart}>
+            {knopLabel}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="M13 6l6 6-6 6" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="mm-rt-phone" aria-hidden="true">
+          <div className="mm-rt-notch" />
+          <div className="mm-rt-screen">
+            <div className="mm-rt-scr-head">
+              <span className="mm-rt-scr-title">Jouw kaart</span>
+              <span className="mm-rt-scr-meta">Dag 1 · 06:12</span>
+            </div>
+            <div className="mm-rt-scr-bar">
+              <i style={{ background: "#3D4568" }} />
+              <i style={{ background: "#E39A5B" }} />
+              <i />
+              <i />
+              <i />
+            </div>
+            <svg viewBox="0 0 390 440" width="100%" style={{ display: "block" }}>
+              <path d="M0 100 L 150 120 C 178 170, 166 220, 176 266 L 62 272 C 42 274, 30 284, 24 300 L 20 440 L 0 440 Z" fill="#BFD3D6" />
+              <line x1="130" y1="0" x2="130" y2="440" stroke="#E6D6BB" />
+              <line x1="260" y1="0" x2="260" y2="440" stroke="#E6D6BB" />
+              <line x1="0" y1="220" x2="390" y2="220" stroke="#E6D6BB" />
+              <path d="M176 284 l 8 -12 l 8 12 M 192 282 l 10 -16 l 10 16 M 212 284 l 8 -12 l 8 12" fill="none" stroke="#7A6A55" strokeWidth="1.6" />
+              <path d="M300 40 C 296 80, 286 110, 284 140" fill="none" stroke="#B8471F" strokeWidth="5" strokeLinecap="round" />
+              <path
+                d="M284 140 C 280 180, 266 200, 262 230 C 246 262, 220 290, 196 302 S 150 340, 130 356 S 96 330, 80 324 S 48 318, 36 316"
+                fill="none"
+                stroke="#B8471F"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeDasharray="2 8"
+              />
+              <circle cx="300" cy="40" r="7" fill="#2A2118" />
+              <text x="314" y="45" fontFamily="DM Sans" fontSize="14" fontWeight="700" fill="#2A2118">
+                Tilburg
+              </text>
+              <circle cx="284" cy="140" r="11" fill="none" stroke="#B8471F" strokeWidth="2" opacity=".5" />
+              <circle cx="284" cy="140" r="6" fill="#B8471F" />
+              <circle cx="36" cy="316" r="7" fill="#F3E6CF" stroke="#1E4E79" strokeWidth="3" />
+              <text x="26" y="350" fontFamily="DM Serif Display" fontSize="17" fill="#1E4E79">
+                Finisterre
+              </text>
+              <path d="M318 196 l 11 -20 l 11 20 Z" fill="#6E5A6B" />
+              <path d="M330 228 l 10 -17 l 10 17 Z" fill="#6E5A6B" />
+              <path d="M314 258 l 9 -15 l 9 15 Z" fill="#6E5A6B" />
+              <g transform="translate(70 58) rotate(-8)">
+                <circle r="28" fill="none" stroke="#1E4E79" strokeWidth="1.8" />
+                <circle r="22" fill="none" stroke="#1E4E79" />
+                <text y="4" textAnchor="middle" fontFamily="DM Sans" fontSize="10" fontWeight="700" fill="#1E4E79" letterSpacing="1">
+                  VERTREK
+                </text>
+              </g>
+            </svg>
+            <div className="mm-rt-scr-card">
+              <span>Halte 1 · Thuis</span>
+              <b>De tas staat al klaar.</b>
+              <i>Instappen</i>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
 function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
   const stage = String(journey?.currentStage || "");
   const bag = journey?.vreemdeAnder || {};
@@ -1826,7 +1955,7 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3, initialGroup=""
 // ── Main App ───────────────────────────────────────────────────
 
 export default function MoralMaps(){
-  const [screen,setScreen]=useState("trilogie-home");
+  const [screen,setScreen]=useState("roadtrip-landing");
   const [participantCode,setParticipantCode]=useState("");
   const [groupCode,setGroupCode]=useState("");
   const [age,setAge]=useState("");
@@ -2172,7 +2301,7 @@ export default function MoralMaps(){
     setScreen("deel3");
     setPendingJourney(null);
   }
-  function reset(){setScreen("trilogie-home");setParticipantCode("");setGroupCode("");setAge("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
+  function reset(){setScreen("roadtrip-landing");setParticipantCode("");setGroupCode("");setAge("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
   // Enige, volledige manier om alle lokale gegevens te verwijderen.
   function wipeDevice(){
     const ok = window.confirm("Weet je zeker dat je al je gegevens van dit toestel wilt wissen? Dit verwijdert je volledige voortgang en kan niet ongedaan worden gemaakt.");
@@ -2260,7 +2389,7 @@ export default function MoralMaps(){
         <textarea value={reflectie3} onChange={e=>setReflectie3(e.target.value)} rows={5}
           placeholder="Schrijf hier je antwoord..."
           style={{width:"100%",padding:"14px 16px",borderRadius:14,border:"1.5px solid rgba(212,83,126,.4)",background:"rgba(255,255,255,.06)",color:"#e2e8f0",fontSize:14,lineHeight:1.7,resize:"vertical",outline:"none",fontFamily:FONT,marginBottom:16}}/>
-        <button onClick={()=>{persistSession("deel3_done",{reflectie3,screen:"deel3"});setShowReflectie3(false);setScreen("trilogie-home");}}
+        <button onClick={()=>{persistSession("deel3_done",{reflectie3,screen:"deel3"});setShowReflectie3(false);setScreen("roadtrip-landing");}}
           style={{width:"100%",padding:"14px",borderRadius:99,border:"none",background:"#d4537e",color:"#fff",fontWeight:800,fontSize:15,cursor:"pointer",fontFamily:FONT}}>
           Terug naar het begin ↺
         </button>
@@ -2268,6 +2397,11 @@ export default function MoralMaps(){
       </div>
     </div>
   );
+
+  if(screen==="roadtrip-landing") {
+    const hasExistingTrip = Boolean(journey.read()?.groupCode);
+    return <RoadtripLanding onStart={()=>setScreen("trilogie-home")} hasExistingTrip={hasExistingTrip} />;
+  }
 
   if(screen==="trilogie-home" && pendingJourney)return <WelcomeBack journey={pendingJourney} onContinue={()=>{applyLoadedSession(pendingJourney);setPendingJourney(null);}} onRestart={wipeDevice} onHome={()=>setPendingJourney(null)}/>;
   if(screen==="trilogie-home"){
@@ -2683,7 +2817,7 @@ export default function MoralMaps(){
   // ── APP ──
   return(
     <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
       <SessionCodeBar groupCode={groupCode} age={age} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
       <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
