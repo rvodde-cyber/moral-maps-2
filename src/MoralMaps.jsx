@@ -762,7 +762,7 @@ function SessionCodeBar({ groupCode, age, saveStatus, onReset, reisModusLabel })
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>📍</div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a", fontFamily: FONT }}>Moral Maps Trilogie</div>
+            <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a", fontFamily: FONT }}>Moral Maps Roadtrip</div>
             <div style={{ fontSize: 10, color: "#94a3b8" }}>
               Groep: {groupCode || "—"}{age ? ` · ${age}` : ""}
               {reisModusLabel ? ` · ${reisModusLabel}` : ""}
@@ -1685,7 +1685,7 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
       <style>{RESPONSIVE_CSS}</style>
       <div style={{maxWidth:480,width:"100%",background:"#fff",borderRadius:24,border:"1px solid #e2e8f0",padding:"28px 24px",boxShadow:"0 14px 38px rgba(15,23,42,.08)"}}>
         <div style={{fontSize:40,marginBottom:8}}>👋</div>
-        <p style={{fontSize:11,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,margin:"0 0 6px"}}>Moral Maps Trilogie</p>
+        <p style={{fontSize:11,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,margin:"0 0 6px"}}>Moral Maps Roadtrip</p>
         <h1 style={{margin:0,fontSize:26,fontWeight:900,letterSpacing:-.6,color:"#0f172a"}}>Welkom terug</h1>
         <p style={{margin:"10px 0 0",fontSize:14,color:"#475569",lineHeight:1.7}}>We vonden een eerder gestarte reis op dit toestel (groep <strong>{group}</strong>, laatst bezig in <strong>{deel}</strong>). Wil je doorgaan waar je was gebleven?</p>
         <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:18}}>
@@ -1722,7 +1722,7 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3, initialGroup=""
         <div style={{background:"#fff",borderRadius:24,border:"1px solid #e2e8f0",padding:"24px 24px 20px",marginBottom:16,boxShadow:"0 14px 38px rgba(15,23,42,.08)"}}>
           <div className="mm-trilogie-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18,alignItems:"center"}}>
             <div>
-              <p style={{fontSize:11,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,margin:"0 0 6px"}}>Moral Maps Trilogie</p>
+              <p style={{fontSize:11,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,margin:"0 0 6px"}}>Moral Maps Roadtrip</p>
               <h1 style={{margin:0,fontSize:32,fontWeight:900,letterSpacing:-.8,color:"#0f172a"}}>Welkom bij je morele reis</h1>
               <p style={{margin:"10px 0 0",fontSize:14,color:"#475569",lineHeight:1.7}}>
                 Wat vind jij écht belangrijk in je werk? En hoe houd je daar koers op als het spannend wordt? In drie delen van ongeveer een halfuur ontdek je het, in je eigen tempo.
@@ -1981,10 +1981,9 @@ export default function MoralMaps(){
       reflectie1: overrides.reflectie1 ?? s.reflectie1,
       reflectie2: overrides.reflectie2 ?? s.reflectie2,
       reflectie3: overrides.reflectie3 ?? s.reflectie3,
-      reisgenotenGezien: overrides.reisgenotenGezien ?? s.reisgenotenGezien,
     };
 
-  return {
+    return {
       participantCode: participant,
       currentStage,
       groupCode: group,
@@ -1995,6 +1994,7 @@ export default function MoralMaps(){
       dominantColor: calcDomColor(coreValues, dilemmaResponses),
       socialisatie: overrides.socialisatie ?? s.socialisatiePayload,
       reisModus: overrides.reisModus ?? s.reisModus ?? "",
+      reisgenotenGezien: Boolean(overrides.reisgenotenGezien ?? s.reisgenotenGezien),
       verdieping: overrides.verdieping ?? s.verdieping ?? {},
       vreemdeAnder: progress,
     };
@@ -2052,8 +2052,7 @@ export default function MoralMaps(){
     setMicroJournal(hydrated.microJournal);
     setReisModus(data.reisModus || "");
     setVerdieping(data.verdieping && typeof data.verdieping === "object" ? data.verdieping : {});
-    if (bag.reisgenotenGezien) setReisgenotenGezien(true);
-    else if (data.reisModus) setReisgenotenGezien(true);
+    setReisgenotenGezien(Boolean(data.reisgenotenGezien ?? bag.reisgenotenGezien));
     if (bag.selVals) setSelVals(bag.selVals);
     if (typeof bag.curDil === "number") setCurDil(bag.curDil);
     const restored = restoreDilemmas(bag.activeDilemmaTitles);
