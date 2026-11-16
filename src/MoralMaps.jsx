@@ -1692,10 +1692,10 @@ function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, 
     <div class="section"><div class="label">Vooruitblik (nalatenschap, richting, belofte)</div><div class="value"><strong>Nalatenschap:</strong> ${deel3Vooruitblik?.nalatenschap || "Niet ingevuld"}</div><div class="value"><strong>Richting:</strong> ${deel3Vooruitblik?.richting || "Niet ingevuld"}</div><div class="value"><strong>Belofte:</strong> ${deel3Vooruitblik?.belofte || "Niet ingevuld"}</div></div>
     ${deel3Synthese && deel3Synthese.trim() ? `<div class="section"><div class="label">Synthese - Persoonlijke routekaart</div><div class="value">${deel3Synthese}</div></div>` : ""}
     <div class="section"><div class="label">Persoonlijk actieplan (GROW) - eindpagina</div>
-      <div class="value"><strong>Goal (Doel):</strong><br/>${deel3Grow?.goal || "Niet ingevuld"}</div>
-      <div class="value" style="margin-top:10px"><strong>Reality (Huidige realiteit):</strong><br/>${deel3Grow?.reality || "Niet ingevuld"}</div>
-      <div class="value" style="margin-top:10px"><strong>Options (Mogelijkheden):</strong><br/>${deel3Grow?.options || "Niet ingevuld"}</div>
-      <div class="value" style="margin-top:10px"><strong>Will (Actie en commitment):</strong><br/>${deel3Grow?.will || "Niet ingevuld"}</div>
+      <div class="value"><strong>Doel:</strong><br/>${deel3Grow?.goal || "Niet ingevuld"}</div>
+      <div class="value" style="margin-top:10px"><strong>Realiteit:</strong><br/>${deel3Grow?.reality || "Niet ingevuld"}</div>
+      <div class="value" style="margin-top:10px"><strong>Opties:</strong><br/>${deel3Grow?.options || "Niet ingevuld"}</div>
+      <div class="value" style="margin-top:10px"><strong>Wil:</strong><br/>${deel3Grow?.will || "Niet ingevuld"}</div>
     </div>
     ${profile.extraAssignment ? `<div class="section"><div class="label">Extra opdracht</div><div class="value">${profile.extraAssignment}</div></div>` : ""}
     ${reflectie3 && reflectie3.trim() ? `<div class="section"><div class="label">Afsluitende reflectie</div><div class="value">${reflectie3}</div></div>` : ""}
@@ -2542,8 +2542,9 @@ export default function MoralMaps(){
                 <textarea value={tankstop.lek} onChange={e=>setTankstop({...tankstop,lek:e.target.value})} rows={2} placeholder="Wat kost je energie of leidt je af?" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,lineHeight:1.6,resize:"vertical",outline:"none",fontFamily:FONT}} />
                 <textarea value={tankstop.nodig} onChange={e=>setTankstop({...tankstop,nodig:e.target.value})} rows={2} placeholder="Wat heb je nodig om goed verder te kunnen?" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,lineHeight:1.6,resize:"vertical",outline:"none",fontFamily:FONT}} />
               </div>
-              <button onClick={()=>{setDeel2Step(3);persistSession("deel2_tankstop",{deel2Step:3,screen:"deel2",tankstop});}} disabled={!tankstop.energie.trim() || !tankstop.nodig.trim()} style={{width:"100%",padding:"12px",borderRadius:999,border:"none",background:(tankstop.energie.trim() && tankstop.nodig.trim())?TEAL:"#94a3b8",color:"#fff",fontWeight:700,fontSize:14,cursor:(tankstop.energie.trim() && tankstop.nodig.trim())?"pointer":"not-allowed",fontFamily:FONT}}>
-                Verder naar Omweg-dilemma →
+              <p style={{fontSize:12,color:"#64748b",lineHeight:1.6,margin:"0 0 10px"}}>Een veld overslaan mag. Schrijf wat nu past.</p>
+              <button onClick={()=>{setDeel2Step(3);persistSession("deel2_tankstop",{deel2Step:3,screen:"deel2",tankstop});}} style={{width:"100%",padding:"12px",borderRadius:999,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:FONT}}>
+                {(tankstop.energie.trim() && tankstop.nodig.trim()) ? "Verder naar Omweg-dilemma →" : "Verder, ook als je niet alles invult →"}
               </button>
             </div>
           )}
@@ -2567,8 +2568,9 @@ export default function MoralMaps(){
                 <textarea value={omweg.bijstelling} onChange={e=>setOmweg({...omweg,bijstelling:e.target.value})} rows={2} placeholder="Hoe heb je je koers bijgesteld, of juist vastgehouden? Wat gaf de doorslag?" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,lineHeight:1.6,resize:"vertical",outline:"none",fontFamily:FONT}} />
                 <textarea value={omweg.lering} onChange={e=>setOmweg({...omweg,lering:e.target.value})} rows={2} placeholder="Welke les neem je mee naar de volgende etappe?" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,lineHeight:1.6,resize:"vertical",outline:"none",fontFamily:FONT}} />
               </div>
-              <button onClick={()=>{setDeel2Step(4);persistSession("deel2_omweg",{deel2Step:4,screen:"deel2",omweg});}} disabled={!omweg.tegenslag.trim() || !omweg.bijstelling.trim()} style={{width:"100%",padding:"12px",borderRadius:999,border:"none",background:(omweg.tegenslag.trim() && omweg.bijstelling.trim())?TEAL:"#94a3b8",color:"#fff",fontWeight:700,fontSize:14,cursor:(omweg.tegenslag.trim() && omweg.bijstelling.trim())?"pointer":"not-allowed",fontFamily:FONT}}>
-                Verder naar De Vreemde Ander →
+              <p style={{fontSize:12,color:"#64748b",lineHeight:1.6,margin:"0 0 10px"}}>Een veld overslaan mag. Schrijf wat nu past.</p>
+              <button onClick={()=>{setDeel2Step(4);persistSession("deel2_omweg",{deel2Step:4,screen:"deel2",omweg});}} style={{width:"100%",padding:"12px",borderRadius:999,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:FONT}}>
+                {(omweg.tegenslag.trim() && omweg.bijstelling.trim()) ? "Verder naar De Vreemde Ander →" : "Verder, ook als je niet alles invult →"}
               </button>
             </div>
           )}
