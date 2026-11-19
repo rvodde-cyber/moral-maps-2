@@ -517,3 +517,11 @@ browser-smoketest toonde een identieke landingspagina vóór en na.
 - Nieuwe landingspagina met Firefly-foto's.
 - Groepscode en leeftijd verwijderd; interne reisId.
 
+## 2026-11-19 — Sprint 0: fundament en veiligheid
+
+- **Pauzeren:** knop *Stop hier, ga later verder* op elke halte Deel I (fase 0–6 + onboarding) en Deel II (stap 0–5); hervatten via *Welkom terug*.
+- **Wis mijn reis:** in-app bevestiging; enige localStorage-key `moralmaps2_journey`; rustige voetlink (niet meer in session bar).
+- **Steuntje:** `src/steuntje-config.js` (Fontys, lege contacten); overlay via voet *Praat met iemand* op alle schermen.
+- **Toegankelijkheid/offline:** self-hosted DM Sans/Serif/Mono in `public/fonts/`, `sw.js` cache v5, `prefers-reduced-motion` en `:focus-visible` in `index.css`.
+- **Geen druk:** geen push/streak/ranglijst/dwingende timers gevonden in `src/` (setTimeout regel 439 alleen voor PDF-print).
+

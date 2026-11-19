@@ -3,12 +3,20 @@
 // Er wordt géén dynamische data gecachet — alle voortgang staat al lokaal
 // in localStorage ("moralmaps2_journey").
 
-const CACHE = "moral-maps-2-static-v4";
+const CACHE = "moral-maps-2-static-v5";
 
 // Kernbestanden die we meteen bij installatie precachen.
 const CORE = [
   "/",
   "/index.html",
+  "/fonts/fonts.css",
+  "/fonts/dm-sans-400.woff2",
+  "/fonts/dm-sans-500.woff2",
+  "/fonts/dm-sans-700.woff2",
+  "/fonts/dm-sans-900.woff2",
+  "/fonts/dm-serif-display-400.woff2",
+  "/fonts/dm-serif-display-400-italic.woff2",
+  "/fonts/dm-mono-500.woff2",
   "/images/roadtrip-hero-desktop.jpg",
   "/images/roadtrip-hero-mobiel.jpg",
   "/manifest.webmanifest",
