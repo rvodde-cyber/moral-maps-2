@@ -3111,7 +3111,7 @@ export default function MoralMaps(){
   return(
     <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
       {globaleOverlays}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
+      <style>{`*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
       <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel}/>
       <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
