@@ -738,6 +738,33 @@ function Verdieping({ vraag, type, opties = [], waarde, onChange, onSkip, metSte
   );
 }
 
+function HaltePauze({ onPause }) {
+  return (
+    <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid #e2e8f0", textAlign: "center" }}>
+      <button
+        type="button"
+        onClick={onPause}
+        style={{
+          padding: "10px 20px",
+          borderRadius: 99,
+          border: "1.5px solid #e2e8f0",
+          background: "#fff",
+          color: "#475569",
+          fontWeight: 600,
+          fontSize: 13,
+          cursor: "pointer",
+          fontFamily: FONT,
+        }}
+      >
+        Stop hier, ga later verder
+      </button>
+      <p style={{ margin: "10px 0 0", fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>
+        Je voortgang blijft op dit toestel staan.
+      </p>
+    </div>
+  );
+}
+
 function SaveStatusChip({ status }) {
   if (!status) return null;
   const map = {
@@ -2294,6 +2321,27 @@ export default function MoralMaps(){
   }
   function reset(){setScreen("roadtrip-landing");setReisId("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
   // Enige, volledige manier om alle lokale gegevens te verwijderen.
+  function currentJourneyStage() {
+    if (screen === "deel2") return `deel2_step_${deel2Step}`;
+    if (deel1Onboarding === "reismodus") return "deel1_reismodus";
+    if (deel1Onboarding === "reisgenoten") return "deel1_reisgenoten";
+    return `phase_${phase}`;
+  }
+
+  function pauseHier() {
+    if (!reisId) ensureActiveReisId();
+    const stage = currentJourneyStage();
+    const screenOverride = screen === "deel2" ? "deel2" : "app";
+    persistSession(stage, {
+      screen: screenOverride,
+      phase,
+      deel2Step,
+    });
+    const j = journey.read();
+    if (j) setPendingJourney(j);
+    setScreen("roadtrip-landing");
+  }
+
   function wipeDevice(){
     const ok = window.confirm("Weet je zeker dat je al je gegevens van dit toestel wilt wissen? Dit verwijdert je volledige voortgang en kan niet ongedaan worden gemaakt.");
     if(!ok) return;
@@ -2587,6 +2635,7 @@ export default function MoralMaps(){
               </div>
             </div>
           )}
+          <HaltePauze onPause={pauseHier} />
         </div>
       </div>
     );
@@ -3328,6 +3377,10 @@ export default function MoralMaps(){
               <button onClick={wipeDevice} style={{flex:1,padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>🗑 Wis mijn gegevens</button>
             </div>
           </div>
+        )}
+
+        {screen === "app" && (deel1Onboarding || (phase >= 0 && phase <= 6)) && (
+          <HaltePauze onPause={pauseHier} />
         )}
 
       </div>
