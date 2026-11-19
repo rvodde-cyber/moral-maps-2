@@ -738,6 +738,125 @@ function Verdieping({ vraag, type, opties = [], waarde, onChange, onSkip, metSte
   );
 }
 
+const VOET_LINK_STIJL = {
+  padding: 0,
+  border: "none",
+  background: "none",
+  fontSize: 12,
+  fontWeight: 600,
+  color: "#64748b",
+  cursor: "pointer",
+  textDecoration: "underline",
+  fontFamily: FONT,
+};
+
+function WisReisBevestiging({ open, onCancel, onConfirm }) {
+  if (!open) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="wis-reis-titel"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        background: "rgba(15, 23, 42, .45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 420,
+          width: "100%",
+          background: "#fff",
+          borderRadius: 16,
+          border: "1px solid #e2e8f0",
+          padding: "22px 20px",
+          boxShadow: "0 20px 50px rgba(15,23,42,.12)",
+        }}
+      >
+        <h2 id="wis-reis-titel" style={{ margin: "0 0 12px", fontSize: 17, fontWeight: 800, color: "#0f172a", fontFamily: FONT }}>
+          Wis mijn reis
+        </h2>
+        <p style={{ margin: "0 0 18px", fontSize: 14, color: "#475569", lineHeight: 1.65, fontFamily: FONT }}>
+          Dit verwijdert alles wat je in deze app hebt ingevuld van dit toestel. Het kan niet ongedaan gemaakt worden. Je kunt daarna opnieuw beginnen.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <button
+            type="button"
+            onClick={onConfirm}
+            style={{
+              width: "100%",
+              padding: "12px",
+              borderRadius: 99,
+              border: "none",
+              background: "#b91c1c",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+              fontFamily: FONT,
+            }}
+          >
+            Ja, wis alles
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              width: "100%",
+              padding: "12px",
+              borderRadius: 99,
+              border: "1.5px solid #e2e8f0",
+              background: "#fff",
+              color: "#334155",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+              fontFamily: FONT,
+            }}
+          >
+            Nee, bewaar mijn reis
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AppVoet({ onWis, onSteuntje }) {
+  if (!onWis && !onSteuntje) return null;
+  return (
+    <footer
+      style={{
+        marginTop: 28,
+        padding: "14px 0 8px",
+        borderTop: "1px solid #e2e8f0",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 16,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {onSteuntje && (
+        <button type="button" onClick={onSteuntje} style={VOET_LINK_STIJL}>
+          Praat met iemand
+        </button>
+      )}
+      {onWis && (
+        <button type="button" onClick={onWis} style={VOET_LINK_STIJL}>
+          Wis mijn reis
+        </button>
+      )}
+    </footer>
+  );
+}
+
 function HaltePauze({ onPause }) {
   return (
     <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid #e2e8f0", textAlign: "center" }}>
@@ -786,7 +905,7 @@ function SaveStatusChip({ status }) {
   );
 }
 
-function SessionCodeBar({ active, saveStatus, onReset, reisModusLabel }) {
+function SessionCodeBar({ active, saveStatus, reisModusLabel }) {
   if (!active) return null;
   return (
     <div className="mm-session-bar" style={{
@@ -813,13 +932,6 @@ function SessionCodeBar({ active, saveStatus, onReset, reisModusLabel }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <SaveStatusChip status={saveStatus} />
-          {onReset && (
-            <button type="button" onClick={onReset} style={{
-              background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 99,
-              padding: "6px 14px", fontSize: 12, fontWeight: 700, color: "#b91c1c",
-              cursor: "pointer", fontFamily: FONT, whiteSpace: "nowrap",
-            }}>🗑 Wis mijn gegevens</button>
-          )}
         </div>
       </div>
     </div>
@@ -1862,7 +1974,7 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
           {onHome && (
             <button onClick={onHome} style={{width:"100%",padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>Kies zelf een deel op het startscherm →</button>
           )}
-          <button onClick={onRestart} style={{width:"100%",padding:"12px",borderRadius:99,border:"1.5px solid #fecaca",background:"#fff",color:"#b91c1c",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>Opnieuw beginnen (wist mijn gegevens)</button>
+          <button onClick={onRestart} style={{width:"100%",padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#64748b",fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:FONT,textDecoration:"underline"}}>Wis mijn reis en opnieuw beginnen</button>
         </div>
         <DeviceWarning style={{marginTop:16}} />
       </div>
@@ -1966,6 +2078,7 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3}){
 
 export default function MoralMaps(){
   const [screen,setScreen]=useState("roadtrip-landing");
+  const [wisReisOpen,setWisReisOpen]=useState(false);
   const [reisId,setReisId]=useState("");
   const [phase,setPhase]=useState(0); // 0=privilege, 1=kaart, 2=gps, 3=dilemma's, 4=starr
   const [selVals,setSelVals]=useState([]);
@@ -2342,13 +2455,21 @@ export default function MoralMaps(){
     setScreen("roadtrip-landing");
   }
 
-  function wipeDevice(){
-    const ok = window.confirm("Weet je zeker dat je al je gegevens van dit toestel wilt wissen? Dit verwijdert je volledige voortgang en kan niet ongedaan worden gemaakt.");
-    if(!ok) return;
+  function requestWisReis() {
+    setWisReisOpen(true);
+  }
+
+  function confirmWisReis() {
+    // Enige localStorage-sleutel van deze app: moralmaps2_journey (JOURNEY_KEY).
     journey.clear();
     setPendingJourney(null);
+    setWisReisOpen(false);
     reset();
   }
+
+  const wisEnSteuntjeVoet = (
+    <AppVoet onWis={requestWisReis} onSteuntje={undefined} />
+  );
   function saveProgress(currentStage){
     return persistSession(currentStage);
   }
@@ -2439,12 +2560,35 @@ export default function MoralMaps(){
 
   if(screen==="roadtrip-landing") {
     const hasExistingTrip = Boolean(journey.read()?.reisId);
-    return <RoadtripLanding onStart={()=>setScreen("trilogie-home")} hasExistingTrip={hasExistingTrip} />;
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
+      <div style={{ flex: 1 }}>
+        <RoadtripLanding onStart={()=>setScreen("trilogie-home")} hasExistingTrip={hasExistingTrip} />
+      </div>
+      <div style={{ padding: "0 16px 24px" }}>
+        <AppVoet onWis={requestWisReis} />
+      </div>
+    </div>
+  );
   }
 
-  if(screen==="trilogie-home" && pendingJourney)return <WelcomeBack journey={pendingJourney} onContinue={()=>{applyLoadedSession(pendingJourney);setPendingJourney(null);}} onRestart={wipeDevice} onHome={()=>setPendingJourney(null)}/>;
+  if(screen==="trilogie-home" && pendingJourney)return (
+    <>
+      <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
+      <WelcomeBack journey={pendingJourney} onContinue={()=>{applyLoadedSession(pendingJourney);setPendingJourney(null);}} onRestart={requestWisReis} onHome={()=>setPendingJourney(null)}/>
+    </>
+  );
   if(screen==="trilogie-home"){
-    return <TrilogieHome onStartDeel1={start} onStartDeel2={startDeel2Direct} onStartDeel3={startDeel3Direct}/>;
+    return (
+      <>
+        <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
+        <TrilogieHome onStartDeel1={start} onStartDeel2={startDeel2Direct} onStartDeel3={startDeel3Direct}/>
+        <div style={{ maxWidth: 980, margin: "0 auto", padding: "0 16px 32px" }}>
+          <AppVoet onWis={requestWisReis} />
+        </div>
+      </>
+    );
   }
 
   if(showReflectie1) return (
@@ -2484,7 +2628,8 @@ export default function MoralMaps(){
     ];
     return (
       <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+        <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel}/>
         <div style={{maxWidth:880,margin:"0 auto",padding:"16px 16px 60px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
             <button onClick={()=>setScreen("trilogie-home")} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:999,padding:"8px 14px",cursor:"pointer",fontWeight:700,color:"#334155",fontFamily:FONT}}>← Terug</button>
@@ -2636,6 +2781,7 @@ export default function MoralMaps(){
             </div>
           )}
           <HaltePauze onPause={pauseHier} />
+          {wisEnSteuntjeVoet}
         </div>
       </div>
     );
@@ -2680,7 +2826,8 @@ export default function MoralMaps(){
     });
     return (
       <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+        <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel}/>
         <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
           {/* Header */}
@@ -2847,6 +2994,7 @@ export default function MoralMaps(){
             </div>
           )}
 
+          {wisEnSteuntjeVoet}
         </div>
       </div>
     );
@@ -2856,8 +3004,9 @@ export default function MoralMaps(){
   // ── APP ──
   return(
     <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
+      <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
-      <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+      <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel}/>
       <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
         {deel1Onboarding === "reismodus" && (
@@ -3374,7 +3523,6 @@ export default function MoralMaps(){
             <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
               <button onClick={()=>setShowReflectie1(true)} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT,minWidth:140}}>✨ Afsluiten & verder →</button>
               <button onClick={()=>exportPDF(coreVals,dilResp,starr,{smsChoice,smsReflection},domColor,{ankerzin:ankerzin||formatAnkerzin(coreVals),weekdoel,microJournal,reflectie1})} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",boxShadow:`0 4px 12px ${TEAL_GLOW}`,fontFamily:FONT,minWidth:140}}>↓ Download PDF</button>
-              <button onClick={wipeDevice} style={{flex:1,padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>🗑 Wis mijn gegevens</button>
             </div>
           </div>
         )}
@@ -3382,6 +3530,8 @@ export default function MoralMaps(){
         {screen === "app" && (deel1Onboarding || (phase >= 0 && phase <= 6)) && (
           <HaltePauze onPause={pauseHier} />
         )}
+
+        {wisEnSteuntjeVoet}
 
       </div>
     </div>
