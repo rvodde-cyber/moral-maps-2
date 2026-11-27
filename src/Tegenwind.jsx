@@ -179,6 +179,9 @@ function TegenwindHero({ children }) {
           src="/images/tegenwind-hero.jpg"
           alt=""
           aria-hidden
+          width={1920}
+          height={1097}
+          decoding="async"
           style={{ display: "none" }}
           onError={() => setHeroFailed(true)}
         />
