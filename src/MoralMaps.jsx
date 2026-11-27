@@ -10,6 +10,9 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useScrollNaarBoven } from "./useScrollNaarBoven.js";
+import PrintOverlay from "./PrintOverlay.jsx";
+import { openPrintView, registerOpenPrintView } from "./printView.js";
+import { pdfPrintFontCss } from "./pdfFontFaces.js";
 import HalteCrossroads from "./HalteCrossroads";
 import HalteFinalDestination from "./HalteFinalDestination";
 import {
@@ -462,22 +465,6 @@ function dominanteKleurInzicht(domColor, coreVals) {
   return `In jouw keuzes komt ${c.label} (${c.desc.toLowerCase()}) het meest naar voren. Dat beschrijft een neiging in je handelen — geen label. Je ankers blijven: ${ankers}.`;
 }
 
-function openPrintWindow(html) {
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const win = window.open(url, "_blank");
-  if (win) {
-    win.onload = () => {
-      setTimeout(() => {
-        win.print();
-        URL.revokeObjectURL(url);
-      }, 600);
-    };
-  } else {
-    URL.revokeObjectURL(url);
-  }
-}
-
 function escHtml(s) {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -486,7 +473,9 @@ function escHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-function exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow }) {
+function exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow }, returnFocusEl) {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const fonts = pdfPrintFontCss(origin);
   const velden = [
     ["Terugblik — plan", deel4?.terugblikPlan],
     ["Terugblik — wat lukte", deel4?.terugblikLukte],
@@ -520,8 +509,7 @@ function exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow }) {
   const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
     <title>Moral Maps — Tegenwind (Deel IV)</title>
     <style>
-      @font-face{font-family:'DM Sans';src:url('/fonts/dm-sans-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
-      @font-face{font-family:'DM Sans';src:url('/fonts/dm-sans-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+      ${fonts}
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:'DM Sans',system-ui,sans-serif;color:#0f172a;padding:34px;max-width:800px;margin:0 auto;background:#fff}
       .header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:14px;padding:24px;margin-bottom:18px}
@@ -543,7 +531,7 @@ function exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow }) {
   <div class="footer">Gegenereerd voor Deel IV — printbaar portfolio-fragment</div>
   </body></html>`;
 
-  openPrintWindow(html);
+  openPrintView(html, "Moral Maps — Tegenwind (Deel IV)", returnFocusEl);
 }
 
 // Centrale plek voor alle visuele assets per deel/signature-event.
@@ -1846,8 +1834,10 @@ function VreemdeAnder({coreVals, onComplete, onStepSave, initial}){
 
 // ── PDF Export ─────────────────────────────────────────────────
 
-function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, extras = {}){
+function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, extras = {}, returnFocusEl){
   const { ankerzin, weekdoel, microJournal, reflectie1 } = extras;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const fonts = pdfPrintFontCss(origin);
   const c = CM[domColor];
   const date = new Date().toLocaleDateString('nl-NL', {day:'numeric',month:'long',year:'numeric'});
   const leidend = leidendeWaardeLabel(starr, coreVals);
@@ -1877,7 +1867,7 @@ function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, extras = {}){
   const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
     <title>Moral Maps – Reisverslag Deel 1</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap');
+      ${fonts}
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:'DM Sans',sans-serif;color:#0f172a;background:#f8fafc;padding:32px;max-width:740px;margin:0 auto;}
       .card{background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
@@ -1934,14 +1924,16 @@ function exportPDF(coreVals, dilResp, starr, smsDilemma, domColor, extras = {}){
 
   </body></html>`;
 
-  openPrintWindow(html);
+  openPrintView(html, "Moral Maps — Reisverslag Deel 1", returnFocusEl);
 }
 
-function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankstop, omweg, deel2Inzicht, vreemdeAnderResult, reflectie2}){
+function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankstop, omweg, deel2Inzicht, vreemdeAnderResult, reflectie2}, returnFocusEl){
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const fonts = pdfPrintFontCss(origin);
   const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
     <title>Moral APS - Deel 2 Onderweg</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;900&display=swap');
+      ${fonts}
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:'DM Sans',sans-serif;color:#0f172a;padding:38px;max-width:760px;margin:0 auto;background:#fff}
       .header{background:linear-gradient(135deg,#1b9e77,#147a5c);color:#fff;border-radius:14px;padding:26px;margin-bottom:20px}
@@ -1993,15 +1985,17 @@ function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankst
     <div class="footer">Gegenereerd voor Deel 2 - printbaar portfolio-fragment</div>
     </body></html>`;
 
-  openPrintWindow(html);
+  openPrintView(html, "Moral Maps — Deel 2", returnFocusEl);
 }
 
-function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, deel3Terugblik, deel3Vooruitblik, deel3Synthese, deel3Grow, domColor, socialisatie, profile, reflectie3}){
+function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, deel3Terugblik, deel3Vooruitblik, deel3Synthese, deel3Grow, domColor, socialisatie, profile, reflectie3}, returnFocusEl){
   const c = CM[domColor];
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const fonts = pdfPrintFontCss(origin);
   const html = `<!DOCTYPE html><html lang="${profile.locale || "nl"}"><head><meta charset="UTF-8">
     <title>Moral APS - Portfolio Deel 3</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;900&display=swap');
+      ${fonts}
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:'DM Sans',sans-serif;color:#0f172a;padding:34px;max-width:800px;margin:0 auto;background:#fff}
       .header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:14px;padding:24px;margin-bottom:18px}
@@ -2037,7 +2031,7 @@ function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, 
     <div class="footer">Portfolio-export - bruikbaar voor presentatie of persoonlijk verhaal</div>
     </body></html>`;
 
-  openPrintWindow(html);
+  openPrintView(html, "Moral Maps — Portfolio Deel 3", returnFocusEl);
 }
 
 // ── (Docentendashboard verwijderd) ───────────────────────────
@@ -2344,6 +2338,7 @@ export default function MoralMaps(){
   const [screen,setScreen]=useState("roadtrip-landing");
   const [wisReisOpen,setWisReisOpen]=useState(false);
   const [steuntjeOpen,setSteuntjeOpen]=useState(false);
+  const [printJob,setPrintJob]=useState(null);
   const [reisId,setReisId]=useState("");
   const [phase,setPhase]=useState(0); // 0=privilege, 1=kaart, 2=gps, 3=dilemma's, 4=starr
   const [selVals,setSelVals]=useState([]);
@@ -2478,6 +2473,11 @@ export default function MoralMaps(){
     const onHash = () => setSprint0Test(window.location.hash === "#sprint0-test");
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  useEffect(() => {
+    registerOpenPrintView((job) => setPrintJob(job));
+    return () => registerOpenPrintView(null);
   }, []);
 
   function setJournalKey(key,val){
@@ -2811,6 +2811,16 @@ export default function MoralMaps(){
     <>
       <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
       <SteuntjeOverlay open={steuntjeOpen} onClose={() => setSteuntjeOpen(false)} />
+      <PrintOverlay
+        open={Boolean(printJob)}
+        html={printJob?.html ?? ""}
+        title={printJob?.title ?? ""}
+        onClose={() => {
+          const focusEl = printJob?.returnFocusRef?.current ?? printJob?.returnFocusRef;
+          setPrintJob(null);
+          requestAnimationFrame(() => focusEl?.focus?.());
+        }}
+      />
     </>
   );
   function saveProgress(currentStage){
@@ -3152,7 +3162,7 @@ export default function MoralMaps(){
                 <p style={{fontSize:11,color:"#86efac",margin:"6px 0 0"}}>{deel2Inzicht.trim().length > 0 ? "✓ Ingevuld — je kunt nu verder naar Deel 3" : "Optioneel — je kunt ook direct doorgaan"}</p>
               </div>
               <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                <button onClick={()=>exportPDFDeel2({coreVals,crossroadsChoice,crossroadsReflectie,tankstop,omweg,deel2Inzicht,vreemdeAnderResult,reflectie2})} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF/Print Deel 2</button>
+                <button onClick={(e)=>exportPDFDeel2({coreVals,crossroadsChoice,crossroadsReflectie,tankstop,omweg,deel2Inzicht,vreemdeAnderResult,reflectie2}, e.currentTarget)} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF/Print Deel 2</button>
                 <button onClick={()=>setDeel2Step(0)} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↺ Opnieuw Deel 2</button>
                 <button onClick={async ()=>{await persistSession("deel2_done",{deel2Inzicht,screen:"deel2"});setShowReflectie2(true);}} style={{flex:"1 1 220px",padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>✨ Afsluiten & verder →</button>
               </div>
@@ -3378,7 +3388,7 @@ export default function MoralMaps(){
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:16}}>
                 <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                   <button onClick={async()=>{await saveProgress("deel3_done");setShowReflectie3(true);}} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:D3_PINK,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>✨ Afsluiten & opslaan</button>
-                  <button onClick={()=>exportPDFDeel3Portfolio({coreVals,dilResp,starr,smsDilemma:{smsChoice,smsReflection},bridge,deel3Terugblik,deel3Vooruitblik,deel3Synthese,deel3Grow,domColor,socialisatie,profile:contentProfile,reflectie3})} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF Totaalportfolio</button>
+                  <button onClick={(e)=>exportPDFDeel3Portfolio({coreVals,dilResp,starr,smsDilemma:{smsChoice,smsReflection},bridge,deel3Terugblik,deel3Vooruitblik,deel3Synthese,deel3Grow,domColor,socialisatie,profile:contentProfile,reflectie3}, e.currentTarget)} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF Totaalportfolio</button>
                 </div>
                 <button
                   type="button"
@@ -3446,7 +3456,7 @@ export default function MoralMaps(){
           onPersist={persistDeel4}
           onBackHome={() => setScreen("trilogie-home")}
           onDownloadIcs={(afgerondOp) => downloadTerugblikDeel4Ics(afgerondOp)}
-          onExportPdf={() => exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow })}
+          onExportPdf={(el) => exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow }, el)}
           HaltePauze={<HaltePauze onPause={pauseHier} />}
           voet={wisEnSteuntjeVoet}
           pechOpen={deel4PechOpen}
@@ -3979,7 +3989,7 @@ export default function MoralMaps(){
             </div>
             <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
               <button onClick={()=>setShowReflectie1(true)} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT,minWidth:140}}>✨ Afsluiten & verder →</button>
-              <button onClick={()=>exportPDF(coreVals,dilResp,starr,{smsChoice,smsReflection},domColor,{ankerzin:ankerzin||formatAnkerzin(coreVals),weekdoel,microJournal,reflectie1})} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",boxShadow:`0 4px 12px ${TEAL_GLOW}`,fontFamily:FONT,minWidth:140}}>↓ Download PDF</button>
+              <button onClick={(e)=>exportPDF(coreVals,dilResp,starr,{smsChoice,smsReflection},domColor,{ankerzin:ankerzin||formatAnkerzin(coreVals),weekdoel,microJournal,reflectie1}, e.currentTarget)} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",boxShadow:`0 4px 12px ${TEAL_GLOW}`,fontFamily:FONT,minWidth:140}}>↓ Download PDF</button>
             </div>
           </div>
         )}
