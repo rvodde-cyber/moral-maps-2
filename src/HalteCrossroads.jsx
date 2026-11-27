@@ -10,7 +10,7 @@
 //    onContinue  — functie, wordt aangeroepen bij "Ga naar Deel 2"
 // ============================================================
 
-const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
+const FONT_DISPLAY = "'DM Serif Display', Georgia, serif";
 const FONT_BODY    = "'DM Sans', system-ui, sans-serif";
 
 const COLOR_MAP = {
@@ -36,7 +36,6 @@ export default function HalteCrossroads({ coreValues = [], onContinue }) {
       padding: "40px 24px", overflow: "hidden", position: "relative",
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
