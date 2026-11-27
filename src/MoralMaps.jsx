@@ -24,6 +24,8 @@ import {
   OVERSLAAN,
 } from "./zuidroute-teksten.js";
 import { STEUNTJE_CONFIG } from "./steuntje-config.js";
+import Tegenwind, { TegenwindTerugblik3m } from "./Tegenwind.jsx";
+import { EMPTY_DEEL4, KNOPPEN, TERUGBLIK3M } from "./tegenwind-teksten.js";
 
 // ── Lokale opslag (localStorage) ─────────────────────────────
 // Eén sleutel bevat de volledige reis van de student op dit toestel.
@@ -400,6 +402,40 @@ function downloadAnkerReminder({ ankerzin, weekdoel }) {
   URL.revokeObjectURL(url);
 }
 
+function downloadTerugblikDeel4Ics(afgerondOp) {
+  const base = afgerondOp ? new Date(afgerondOp) : new Date();
+  const start = new Date(base);
+  start.setMonth(start.getMonth() + 3);
+  start.setHours(10, 0, 0, 0);
+  const end = new Date(start);
+  end.setHours(11, 0, 0, 0);
+  const fmt = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const desc =
+    "Kijk terug op je als-dan-plan uit Moral Maps: Roadtrip. Open de app en kies Terugblik.";
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Moral Maps//NL",
+    "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:moral-maps-tegenwind-${Date.now()}-${Math.random().toString(36).slice(2, 10)}@moral-maps.vercel.app`,
+    `DTSTAMP:${fmt(new Date())}`,
+    `DTSTART:${fmt(start)}`,
+    `DTEND:${fmt(end)}`,
+    "SUMMARY:Terugblik Moral Maps: Tegenwind",
+    `DESCRIPTION:${desc}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "terugblik-tegenwind.ics";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function calcDomColor(coreVals, dilResp) {
   const c = { geel: 0, blauw: 0, rood: 0, groen: 0, wit: 0 };
   [...coreVals, ...dilResp].forEach((x) => {
@@ -440,6 +476,75 @@ function openPrintWindow(html) {
     URL.revokeObjectURL(url);
   }
 }
+
+function escHtml(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow }) {
+  const velden = [
+    ["Terugblik — plan", deel4?.terugblikPlan],
+    ["Terugblik — wat lukte", deel4?.terugblikLukte],
+    ["Situatie", deel4?.situatie],
+    ["Wat gebeurt er precies", deel4?.gebeurtPrecies],
+    ["Gedachte", deel4?.gedachte],
+    ["Afstand — advies aan ander", deel4?.afstandAdvies],
+    ["Afstand — over een jaar", deel4?.afstandJaar],
+    ["Afstand — gedachte herformuleren", deel4?.afstandGedachte],
+    ["Beste uitkomst", deel4?.besteUitkomst],
+    ["Obstakel", deel4?.obstakel],
+    ["Als-dan-plan", deel4?.alsDan],
+    ["Toets — hoofdvraag", deel4?.toets],
+    ["Toets — kernwaarden", deel4?.toetsWaarden],
+    ["Toets — baat en last", deel4?.toetsBaat],
+    ["Toets — motief", deel4?.toetsMotief],
+    ["Plan aanscherpen", deel4?.planAanscherpen],
+    ["Kleine proef", deel4?.proef],
+  ].filter(([, v]) => typeof v === "string" && v.trim() && v.trim() !== OVERSLAAN);
+
+  const kern = (coreVals || []).map((cv) => cv.name).join(", ") || "Niet ingevuld";
+  const week = (weekdoel || "").trim();
+  const grow = (deel3Grow?.goal || "").trim();
+  const sections = velden
+    .map(
+      ([label, val]) =>
+        `<div class="section"><div class="label">${escHtml(label)}</div><div class="value">${escHtml(val)}</div></div>`
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
+    <title>Moral Maps — Tegenwind (Deel IV)</title>
+    <style>
+      @font-face{font-family:'DM Sans';src:url('/fonts/dm-sans-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+      @font-face{font-family:'DM Sans';src:url('/fonts/dm-sans-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:'DM Sans',system-ui,sans-serif;color:#0f172a;padding:34px;max-width:800px;margin:0 auto;background:#fff}
+      .header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:14px;padding:24px;margin-bottom:18px}
+      .section{border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+      .label{font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+      .value{font-size:13px;color:#334155;line-height:1.7;white-space:pre-wrap}
+      .footer{margin-top:20px;padding-top:10px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8;text-align:center}
+    </style></head><body>
+    <div class="header">
+      <h1 style="font-size:24px;font-weight:900;letter-spacing:-.5px;margin:0">Moral Maps — Tegenwind (Deel IV)</h1>
+      <p style="opacity:.85;font-size:12px;margin-top:6px">Alleen ingevulde secties</p>
+    </div>
+  <div class="section"><div class="label">Context uit je reis</div>
+    <div class="value"><strong>Kernwaarden:</strong> ${escHtml(kern)}</div>
+    ${week ? `<div class="value" style="margin-top:8px"><strong>Weekdoel:</strong> ${escHtml(week)}</div>` : ""}
+    ${grow ? `<div class="value" style="margin-top:8px"><strong>GROW-doel:</strong> ${escHtml(grow)}</div>` : ""}
+  </div>
+  ${sections || '<div class="section"><div class="value">Geen ingevulde velden om te tonen.</div></div>'}
+  <div class="footer">Gegenereerd voor Deel IV — printbaar portfolio-fragment</div>
+  </body></html>`;
+
+  openPrintWindow(html);
+}
+
 // Centrale plek voor alle visuele assets per deel/signature-event.
 const ASSET_IMAGES = {
   deel1: {
@@ -2049,7 +2154,8 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
   const stage = String(journey?.currentStage || "");
   const bag = journey?.vreemdeAnder || {};
   let deel = "Deel I";
-  if (stage.startsWith("deel3") || bag.screen === "deel3") deel = "Deel III";
+  if (stage.startsWith("deel4") || bag.screen === "deel4" || bag.screen === "deel4-terugblik") deel = "Deel IV";
+  else if (stage.startsWith("deel3") || bag.screen === "deel3") deel = "Deel III";
   else if (stage.startsWith("deel2") || bag.screen === "deel2") deel = "Deel II";
   return (
     <div style={{minHeight:"100vh",background:"linear-gradient(180deg,#eef2ff,#f8fafc 38%)",fontFamily:FONT,display:"flex",alignItems:"center",justifyContent:"center",padding:"24px 16px"}}>
@@ -2072,7 +2178,7 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
   );
 }
 
-function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3}){
+function TrilogieHome({ onStartDeel1, onStartDeel2, onStartDeel3, onStartDeel4, deel4AfgerondOp, onOpenTerugblik3m }) {
   return(
     <div style={{minHeight:"100vh",background:"linear-gradient(180deg,#eef2ff,#f8fafc 38%)",fontFamily:FONT}}>
       <style>{RESPONSIVE_CSS}</style>
@@ -2135,7 +2241,41 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3}){
           <DeviceWarning style={{marginTop:12}} />
         </div>
 
-        <div className="mm-trilogie-parts" style={{display:"grid",gridTemplateColumns:"repeat(3, minmax(0, 1fr))",gap:12,marginBottom:16}}>
+        {deel4AfgerondOp ? (
+          <button
+            type="button"
+            onClick={onOpenTerugblik3m}
+            style={{
+              width: "100%",
+              padding: "16px 18px",
+              borderRadius: 16,
+              border: "1px solid #fdba74",
+              background: "linear-gradient(135deg,#fff7ed,#ffedd5)",
+              textAlign: "left",
+              cursor: "pointer",
+              fontFamily: FONT,
+              marginBottom: 12,
+              boxShadow: "0 8px 24px rgba(15,23,42,.05)",
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: "#c2410c", textTransform: "uppercase", letterSpacing: 1 }}>
+              {TERUGBLIK3M.startschermTitel}
+            </p>
+            <p style={{ margin: "6px 0 0", fontSize: 14, fontWeight: 900, color: "#0f172a" }}>
+              Terugblik na drie maanden
+            </p>
+            <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
+              Afgerond op{" "}
+              {new Date(deel4AfgerondOp).toLocaleDateString("nl-NL", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+          </button>
+        ) : null}
+
+        <div className="mm-trilogie-parts" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))",gap:12,marginBottom:16}}>
           <button type="button" onClick={()=>onStartDeel1()} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
             <p style={{margin:0,fontSize:10,fontWeight:800,color:"#6366f1",textTransform:"uppercase",letterSpacing:1}}>I: The Beginning</p>
             <p style={{margin:"5px 0 0",fontSize:14,fontWeight:900,color:"#0f172a"}}>Start Deel I</p>
@@ -2150,6 +2290,11 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3}){
             <p style={{margin:0,fontSize:10,fontWeight:800,color:"#16a34a",textTransform:"uppercase",letterSpacing:1}}>III: Final Destination</p>
             <p style={{margin:"5px 0 0",fontSize:14,fontWeight:900,color:"#0f172a"}}>Werk aan Deel III</p>
             <p style={{margin:"6px 0 0",fontSize:12,color:"#64748b",lineHeight:1.6}}>Kijk terug, kies je koers en maak een concreet plan. <span style={{color:"#94a3b8"}}>(± 35 min)</span></p>
+          </button>
+          <button type="button" onClick={()=>onStartDeel4?.()} style={{padding:"16px 14px",borderRadius:16,border:"1px solid #e2e8f0",background:"#fff",textAlign:"left",cursor:"pointer",fontFamily:FONT,boxShadow:"0 8px 24px rgba(15,23,42,.05)"}}>
+            <p style={{margin:0,fontSize:10,fontWeight:800,color:"#0f766e",textTransform:"uppercase",letterSpacing:1}}>IV: Tegenwind</p>
+            <p style={{margin:"5px 0 0",fontSize:14,fontWeight:900,color:"#0f172a"}}>{KNOPPEN.werkAanDeel4}</p>
+            <p style={{margin:"6px 0 0",fontSize:12,color:"#64748b",lineHeight:1.6}}>Kijk wat je tegenhoudt en maak een als-dan-plan. <span style={{color:"#94a3b8"}}>(± 30 min)</span></p>
           </button>
         </div>
 
@@ -2200,6 +2345,9 @@ export default function MoralMaps(){
   const [smsReflection,setSmsReflection]=useState("");
   const [deel2Step,setDeel2Step]=useState(0);
   const [deel3Step,setDeel3Step]=useState(0);
+  const [deel4,setDeel4]=useState({ ...EMPTY_DEEL4 });
+  const [deel4Step,setDeel4Step]=useState(0);
+  const [deel4PechOpen,setDeel4PechOpen]=useState(false);
   const [reflectie1,setReflectie1]=useState("");
   const [reflectie2,setReflectie2]=useState("");
   const [reflectie3,setReflectie3]=useState("");
@@ -2259,7 +2407,7 @@ export default function MoralMaps(){
     snapshotRef.current = {
       reisId, screen, phase, selVals, coreVals, dilResp, curDil,
       dilemmas, starr, socialisatiePayload, bridge, deel3Terugblik, deel3Vooruitblik,
-      deel3Synthese, deel3Grow, deel2Step, deel3Step, crossroadsChoice, crossroadsReflectie,
+      deel3Synthese, deel3Grow, deel2Step, deel3Step, deel4, deel4Step, crossroadsChoice, crossroadsReflectie,
       tankstop, omweg, deel2Inzicht, vreemdeAnderResult, smsChoice, smsReflection, domColor,
       reflectie1, reflectie2, reflectie3,
       reisModus, verdieping, reisgenotenGezien,
@@ -2302,6 +2450,8 @@ export default function MoralMaps(){
       phase: overrides.phase ?? s.phase,
       deel2Step: overrides.deel2Step ?? s.deel2Step,
       deel3Step: overrides.deel3Step ?? s.deel3Step,
+      deel4: overrides.deel4 ?? s.deel4,
+      deel4Step: overrides.deel4Step ?? s.deel4Step,
       selVals: overrides.selVals ?? s.selVals,
       curDil: overrides.curDil ?? s.curDil,
       activeDilemmaTitles: (overrides.dilemmas ?? s.dilemmas ?? []).map((d) => d.title),
@@ -2370,16 +2520,18 @@ export default function MoralMaps(){
   // bewaard, zodat er binnen één browsersessie nooit voortgang verloren gaat.
   useEffect(() => {
     if (!reisId) return;
-    if (screen !== "app" && screen !== "deel2" && screen !== "deel3") return;
+    if (screen !== "app" && screen !== "deel2" && screen !== "deel3" && screen !== "deel4" && screen !== "deel4-terugblik") return;
     const stage =
       screen === "deel2" ? `deel2_step_${deel2Step}` :
       screen === "deel3" ? `deel3_step_${deel3Step}` :
+      screen === "deel4" ? `deel4_step_${deel4Step}` :
+      screen === "deel4-terugblik" ? "deel4_terugblik3m" :
       `phase_${phase}`;
     const ok = journey.write(buildJourneyPayload(stage));
     if (ok) setSaveStatus("saved");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    reisId, screen, phase, deel2Step, deel3Step, selVals, coreVals, dilResp,
+    reisId, screen, phase, deel2Step, deel3Step, deel4, deel4Step, selVals, coreVals, dilResp,
     curDil, starr, socialisatiePayload, bridge, deel3Terugblik, deel3Vooruitblik,
     deel3Synthese, deel3Grow, crossroadsChoice, crossroadsReflectie, tankstop, omweg,
     deel2Inzicht, vreemdeAnderResult, smsChoice, smsReflection, reflectie1, reflectie2, reflectie3,
@@ -2422,8 +2574,25 @@ export default function MoralMaps(){
     if (typeof bag.reflectie3 === "string") setReflectie3(bag.reflectie3);
     if (typeof bag.deel2Step === "number") setDeel2Step(bag.deel2Step);
     if (typeof bag.deel3Step === "number") setDeel3Step(bag.deel3Step);
+    if (bag.deel4) {
+      setDeel4({
+        ...EMPTY_DEEL4,
+        ...bag.deel4,
+        terugblik3m: { ...EMPTY_DEEL4.terugblik3m, ...(bag.deel4.terugblik3m || {}) },
+      });
+    }
+    if (typeof bag.deel4Step === "number") setDeel4Step(bag.deel4Step);
 
     const stage = (data.currentStage || "").toLowerCase();
+    if (stage.startsWith("deel4") || bag.screen === "deel4" || bag.screen === "deel4-terugblik") {
+      if (bag.screen === "deel4-terugblik" || stage.includes("terugblik3m")) {
+        setScreen("deel4-terugblik");
+      } else {
+        setScreen("deel4");
+        if (stage.includes("done") && typeof bag.deel4Step !== "number") setDeel4Step(8);
+      }
+      return;
+    }
     if (stage.startsWith("deel3") || bag.screen === "deel3") {
       setScreen("deel3");
       if (stage.includes("done")) setDeel3Step(typeof bag.deel3Step === "number" ? bag.deel3Step : 3);
@@ -2443,7 +2612,17 @@ export default function MoralMaps(){
       return;
     }
     if (typeof bag.phase === "number") {
-      setScreen(bag.screen === "deel2" ? "deel2" : bag.screen === "deel3" ? "deel3" : "app");
+      setScreen(
+        bag.screen === "deel2"
+          ? "deel2"
+          : bag.screen === "deel3"
+            ? "deel3"
+            : bag.screen === "deel4"
+              ? "deel4"
+              : bag.screen === "deel4-terugblik"
+                ? "deel4-terugblik"
+                : "app"
+      );
       setPhase(Math.min(6, bag.phase));
       return;
     }
@@ -2523,10 +2702,27 @@ export default function MoralMaps(){
     setPendingJourney(null);
     persistSession("deel3_step_0", { screen: "deel3", deel3Step: 0 });
   }
-  function reset(){setScreen("roadtrip-landing");setReisId("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
+  function startDeel4Direct() {
+    if (coreVals.length === 0) {
+      if (pickUpLocalJourney("deel4")) return;
+    }
+    ensureActiveReisId();
+    setScreen("deel4");
+    setDeel4Step(0);
+    setDeel4PechOpen(false);
+    setPendingJourney(null);
+    persistSession("deel4_step_0", { screen: "deel4", deel4Step: 0, deel4 });
+  }
+  function persistDeel4(nextDeel4, step) {
+    const st = step ?? deel4Step;
+    persistSession(`deel4_step_${st}`, { screen: "deel4", deel4: nextDeel4, deel4Step: st });
+  }
+  function reset(){setScreen("roadtrip-landing");setReisId("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setDeel4({...EMPTY_DEEL4});setDeel4Step(0);setDeel4PechOpen(false);setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
   // Enige, volledige manier om alle lokale gegevens te verwijderen.
   function currentJourneyStage() {
     if (screen === "deel2") return `deel2_step_${deel2Step}`;
+    if (screen === "deel4") return `deel4_step_${deel4Step}`;
+    if (screen === "deel4-terugblik") return "deel4_terugblik3m";
     if (deel1Onboarding === "reismodus") return "deel1_reismodus";
     if (deel1Onboarding === "reisgenoten") return "deel1_reisgenoten";
     return `phase_${phase}`;
@@ -2535,11 +2731,14 @@ export default function MoralMaps(){
   function pauseHier() {
     if (!reisId) ensureActiveReisId();
     const stage = currentJourneyStage();
-    const screenOverride = screen === "deel2" ? "deel2" : "app";
+    const screenOverride =
+      screen === "deel2" ? "deel2" : screen === "deel4" ? "deel4" : screen === "deel4-terugblik" ? "deel4-terugblik" : "app";
     persistSession(stage, {
       screen: screenOverride,
       phase,
       deel2Step,
+      deel4,
+      deel4Step,
     });
     const j = journey.read();
     if (j) setPendingJourney(j);
@@ -2689,7 +2888,18 @@ export default function MoralMaps(){
     return (
       <>
         {globaleOverlays}
-        <TrilogieHome onStartDeel1={start} onStartDeel2={startDeel2Direct} onStartDeel3={startDeel3Direct}/>
+        <TrilogieHome
+          onStartDeel1={start}
+          onStartDeel2={startDeel2Direct}
+          onStartDeel3={startDeel3Direct}
+          onStartDeel4={startDeel4Direct}
+          deel4AfgerondOp={deel4.afgerondOp || journey.read()?.vreemdeAnder?.deel4?.afgerondOp}
+          onOpenTerugblik3m={() => {
+            ensureActiveReisId();
+            setScreen("deel4-terugblik");
+            persistSession("deel4_terugblik3m", { screen: "deel4-terugblik", deel4, deel4Step });
+          }}
+        />
         <div style={{ maxWidth: 980, margin: "0 auto", padding: "0 16px 32px" }}>
           <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
         </div>
@@ -3124,6 +3334,25 @@ export default function MoralMaps(){
                   <button onClick={async()=>{await saveProgress("deel3_done");setShowReflectie3(true);}} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:D3_PINK,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>✨ Afsluiten & opslaan</button>
                   <button onClick={()=>exportPDFDeel3Portfolio({coreVals,dilResp,starr,smsDilemma:{smsChoice,smsReflection},bridge,deel3Terugblik,deel3Vooruitblik,deel3Synthese,deel3Grow,domColor,socialisatie,profile:contentProfile,reflectie3})} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF Totaalportfolio</button>
                 </div>
+                <button
+                  type="button"
+                  onClick={startDeel4Direct}
+                  style={{
+                    width: "100%",
+                    marginTop: 10,
+                    padding: "11px",
+                    borderRadius: 999,
+                    border: `1.5px solid ${TEAL}`,
+                    background: TEAL_LIGHT,
+                    color: TEAL_DARK,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    fontFamily: FONT,
+                  }}
+                >
+                  {KNOPPEN.verderTegenwind}
+                </button>
               </div>
             </div>
           )}
@@ -3134,6 +3363,53 @@ export default function MoralMaps(){
     );
   }
 
+  if (screen === "deel4-terugblik") {
+    return (
+      <>
+        {globaleOverlays}
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel} />
+        <TegenwindTerugblik3m
+          OpdrachtkaartIntro={OpdrachtkaartIntro}
+          deel4={deel4}
+          setDeel4={setDeel4}
+          onBack={() => setScreen("trilogie-home")}
+          onPersist={(next) => persistSession("deel4_terugblik3m", { screen: "deel4-terugblik", deel4: next })}
+          voet={wisEnSteuntjeVoet}
+        />
+      </>
+    );
+  }
+
+  if (screen === "deel4") {
+    const toonOhneDelen =
+      coreVals.length === 0 && !(weekdoel || "").trim() && !(deel3Grow?.goal || "").trim();
+    return (
+      <>
+        {globaleOverlays}
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel} />
+        <Tegenwind
+          OpdrachtkaartIntro={OpdrachtkaartIntro}
+          deel4={deel4}
+          setDeel4={setDeel4}
+          deel4Step={deel4Step}
+          setDeel4Step={setDeel4Step}
+          coreVals={coreVals}
+          weekdoel={weekdoel}
+          deel3Grow={deel3Grow}
+          toonOhneDelen={toonOhneDelen}
+          onPersist={persistDeel4}
+          onBackHome={() => setScreen("trilogie-home")}
+          onDownloadIcs={(afgerondOp) => downloadTerugblikDeel4Ics(afgerondOp)}
+          onExportPdf={() => exportPDFDeel4Tegenwind({ deel4, coreVals, weekdoel, deel3Grow })}
+          HaltePauze={<HaltePauze onPause={pauseHier} />}
+          voet={wisEnSteuntjeVoet}
+          pechOpen={deel4PechOpen}
+          onOpenPech={() => setDeel4PechOpen(true)}
+          onClosePech={() => setDeel4PechOpen(false)}
+        />
+      </>
+    );
+  }
 
   // ── APP ──
   return(
