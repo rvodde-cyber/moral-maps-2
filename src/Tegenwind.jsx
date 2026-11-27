@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   OPENING,
-  STAP_OHNE_DELEN,
+  STAP_ZONDER_EERDERE_DELEN,
   STAP1,
   STAP2,
   STAP3,
@@ -558,7 +558,7 @@ export default function Tegenwind({
           <>
             {toonOhneDelen ? (
               <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.65, margin: "0 0 12px", fontFamily: FONT }}>
-                {STAP_OHNE_DELEN}
+                {STAP_ZONDER_EERDERE_DELEN}
               </p>
             ) : null}
             {cardShell(

@@ -37,8 +37,7 @@ moral-maps/
 ├── src/                              ← Deel 1 (React + Vite)
 │   ├── MoralMaps.jsx                 ← Hoofdcomponent
 │   ├── HalteCrossroads.jsx           ← Tussenpagina deel 1 → 2
-│   ├── HalteFinalDestination.jsx     ← Tussenpagina deel 2 → 3
-│   └── MapsLanding.jsx               ← Reserve landingspagina
+│   └── HalteFinalDestination.jsx     ← Tussenpagina deel 2 → 3
 ├── apps/
 │   ├── moral-maps-2-crossroads/      ← Redirect-stub (oud Vercel-project)
 │   └── moral-maps-3-final-destination/ ← Redirect-stub (oud Vercel-project)
