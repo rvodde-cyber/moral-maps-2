@@ -1,3 +1,5 @@
+@import url("/fonts/fonts.css");
+
 :root {
   /* Google Maps Kleurenpalet */
   --bg: #f1f3f4; /* De lichtgrijze kaart-achtergrond */
@@ -59,4 +61,25 @@ h1, h2, h3 {
 button {
   cursor: pointer;
   font-family: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+input:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid #1b9e77;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

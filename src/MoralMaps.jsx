@@ -22,13 +22,8 @@ import {
   REISMODUS,
   REISGENOTEN,
   OVERSLAAN,
-  STEUNTJE,
 } from "./zuidroute-teksten.js";
-
-// ── Contactverwijzing (per opleiding aan te passen) ──────────
-// Pas deze regel aan naar de juiste contactpersoon voor jouw opleiding.
-const MENTOR_CONTACT = "je mentor of de studentendecaan";
-// ─────────────────────────────────────────────────────────────
+import { STEUNTJE_CONFIG } from "./steuntje-config.js";
 
 // ── Lokale opslag (localStorage) ─────────────────────────────
 // Eén sleutel bevat de volledige reis van de student op dit toestel.
@@ -599,20 +594,92 @@ function Reisgenoot({ wie, tekst }) {
   );
 }
 
-function Steuntje() {
+function SteuntjeInhoud() {
+  const cfg = STEUNTJE_CONFIG;
   return (
     <div
       style={{
         background: "#f5f0e8",
         border: "1px solid #e8dfd1",
         borderRadius: 12,
-        padding: "12px 14px",
-        marginTop: 12,
+        padding: "14px 16px",
+        fontFamily: FONT,
       }}
     >
-      <p style={{ margin: 0, fontSize: 12, color: "#57534e", lineHeight: 1.7, fontFamily: FONT }}>
-        {STEUNTJE} Neem ook contact op met {MENTOR_CONTACT}.
+      <p id="steuntje-titel" style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 800, color: "#78716c", textTransform: "uppercase", letterSpacing: 1 }}>
+        {cfg.titel} · {cfg.instelling}
       </p>
+      <p style={{ margin: "0 0 12px", fontSize: 13, color: "#44403c", lineHeight: 1.65 }}>{cfg.intro}</p>
+      {cfg.contacten.length === 0 ? (
+        <p style={{ margin: "0 0 12px", fontSize: 12, color: "#57534e", lineHeight: 1.65 }}>{cfg.contactenLeegTekst}</p>
+      ) : (
+        <ul style={{ margin: "0 0 12px", paddingLeft: 18, fontSize: 12, color: "#44403c", lineHeight: 1.6 }}>
+          {cfg.contacten.map((c) => (
+            <li key={`${c.rol}-${c.kanaal}`} style={{ marginBottom: 8 }}>
+              <strong>{c.rol}</strong>
+              {c.omschrijving ? ` — ${c.omschrijving}` : ""}
+              {c.kanaal ? (
+                <>
+                  {" "}
+                  (<a href={c.kanaal} style={{ color: TEAL }}>{c.kanaal.replace(/^mailto:|^tel:/, "")}</a>)
+                </>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p style={{ margin: 0, fontSize: 12, color: "#57534e", lineHeight: 1.65 }}>{cfg.algemeen}</p>
+    </div>
+  );
+}
+
+function Steuntje() {
+  return <SteuntjeInhoud />;
+}
+
+function SteuntjeOverlay({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="steuntje-titel"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        background: "rgba(15, 23, 42, .45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div style={{ maxWidth: 480, width: "100%", maxHeight: "min(90vh, 640px)", overflowY: "auto" }}>
+        <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", padding: "8px 8px 16px", boxShadow: "0 20px 50px rgba(15,23,42,.12)" }}>
+          <SteuntjeInhoud />
+          <div style={{ padding: "0 8px", marginTop: 12 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                width: "100%",
+                padding: "11px",
+                borderRadius: 99,
+                border: "1.5px solid #e2e8f0",
+                background: "#fff",
+                color: "#334155",
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: "pointer",
+                fontFamily: FONT,
+              }}
+            >
+              Sluiten
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -741,6 +808,152 @@ function Verdieping({ vraag, type, opties = [], waarde, onChange, onSkip, metSte
   );
 }
 
+const VOET_LINK_STIJL = {
+  padding: 0,
+  border: "none",
+  background: "none",
+  fontSize: 12,
+  fontWeight: 600,
+  color: "#64748b",
+  cursor: "pointer",
+  textDecoration: "underline",
+  fontFamily: FONT,
+};
+
+function WisReisBevestiging({ open, onCancel, onConfirm }) {
+  if (!open) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="wis-reis-titel"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        background: "rgba(15, 23, 42, .45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 420,
+          width: "100%",
+          background: "#fff",
+          borderRadius: 16,
+          border: "1px solid #e2e8f0",
+          padding: "22px 20px",
+          boxShadow: "0 20px 50px rgba(15,23,42,.12)",
+        }}
+      >
+        <h2 id="wis-reis-titel" style={{ margin: "0 0 12px", fontSize: 17, fontWeight: 800, color: "#0f172a", fontFamily: FONT }}>
+          Wis mijn reis
+        </h2>
+        <p style={{ margin: "0 0 18px", fontSize: 14, color: "#475569", lineHeight: 1.65, fontFamily: FONT }}>
+          Dit verwijdert alles wat je in deze app hebt ingevuld van dit toestel. Het kan niet ongedaan gemaakt worden. Je kunt daarna opnieuw beginnen.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <button
+            type="button"
+            onClick={onConfirm}
+            style={{
+              width: "100%",
+              padding: "12px",
+              borderRadius: 99,
+              border: "none",
+              background: "#b91c1c",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+              fontFamily: FONT,
+            }}
+          >
+            Ja, wis alles
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              width: "100%",
+              padding: "12px",
+              borderRadius: 99,
+              border: "1.5px solid #e2e8f0",
+              background: "#fff",
+              color: "#334155",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+              fontFamily: FONT,
+            }}
+          >
+            Nee, bewaar mijn reis
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AppVoet({ onWis, onSteuntje }) {
+  if (!onWis && !onSteuntje) return null;
+  return (
+    <footer
+      style={{
+        marginTop: 28,
+        padding: "14px 0 8px",
+        borderTop: "1px solid #e2e8f0",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 16,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {onSteuntje && (
+        <button type="button" onClick={onSteuntje} style={VOET_LINK_STIJL}>
+          Praat met iemand
+        </button>
+      )}
+      {onWis && (
+        <button type="button" onClick={onWis} style={VOET_LINK_STIJL}>
+          Wis mijn reis
+        </button>
+      )}
+    </footer>
+  );
+}
+
+function HaltePauze({ onPause }) {
+  return (
+    <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid #e2e8f0", textAlign: "center" }}>
+      <button
+        type="button"
+        onClick={onPause}
+        style={{
+          padding: "10px 20px",
+          borderRadius: 99,
+          border: "1.5px solid #e2e8f0",
+          background: "#fff",
+          color: "#475569",
+          fontWeight: 600,
+          fontSize: 13,
+          cursor: "pointer",
+          fontFamily: FONT,
+        }}
+      >
+        Stop hier, ga later verder
+      </button>
+      <p style={{ margin: "10px 0 0", fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>
+        Je voortgang blijft op dit toestel staan.
+      </p>
+    </div>
+  );
+}
+
 function SaveStatusChip({ status }) {
   if (!status) return null;
   const map = {
@@ -762,7 +975,7 @@ function SaveStatusChip({ status }) {
   );
 }
 
-function SessionCodeBar({ active, saveStatus, onReset, reisModusLabel }) {
+function SessionCodeBar({ active, saveStatus, reisModusLabel }) {
   if (!active) return null;
   return (
     <div className="mm-session-bar" style={{
@@ -789,13 +1002,6 @@ function SessionCodeBar({ active, saveStatus, onReset, reisModusLabel }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <SaveStatusChip status={saveStatus} />
-          {onReset && (
-            <button type="button" onClick={onReset} style={{
-              background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 99,
-              padding: "6px 14px", fontSize: 12, fontWeight: 700, color: "#b91c1c",
-              cursor: "pointer", fontFamily: FONT, whiteSpace: "nowrap",
-            }}>🗑 Wis mijn gegevens</button>
-          )}
         </div>
       </div>
     </div>
@@ -1129,7 +1335,7 @@ function PrivilegeWheel({ onComplete, handelenStap, onHandelenStapChange }) {
               <MachtskruisingBronnenBlok marginTop={14} />
             </div>
             <div style={{background:"#f8fafc",borderRadius:10,border:"1px solid #e2e8f0",padding:"12px 16px",marginBottom:24}}>
-              <p style={{fontSize:12,color:"#64748b",lineHeight:1.6,margin:0}}>🔒 <strong>Anoniem:</strong> Jouw keuzes in dit scherm worden niet bewaard. Het wiel dient alleen als bewustwordingsmoment voor jou persoonlijk. Een onderdeel overslaan mag altijd — je bent nergens toe verplicht. Roept een onderwerp iets bij je op waar je met iemand over wilt praten? Neem contact op met {MENTOR_CONTACT}.</p>
+              <p style={{fontSize:12,color:"#64748b",lineHeight:1.6,margin:0}}>🔒 <strong>Anoniem:</strong> Jouw keuzes in dit scherm worden niet bewaard. Het wiel dient alleen als bewustwordingsmoment voor jou persoonlijk. Een onderdeel overslaan mag altijd — je bent nergens toe verplicht. Roept een onderwerp iets bij je op waar je met iemand over wilt praten? Praat erover met iemand die je vertrouwt.</p>
             </div>
             <button onClick={()=>setShowIntro(false)} style={{width:"100%",padding:"13px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:800,fontSize:15,cursor:"pointer",boxShadow:`0 4px 20px ${TEAL_GLOW}`,fontFamily:FONT}}>
               Bekijk het wiel →
@@ -1858,7 +2064,7 @@ function WelcomeBack({ journey, onContinue, onRestart, onHome }) {
           {onHome && (
             <button onClick={onHome} style={{width:"100%",padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>Kies zelf een deel op het startscherm →</button>
           )}
-          <button onClick={onRestart} style={{width:"100%",padding:"12px",borderRadius:99,border:"1.5px solid #fecaca",background:"#fff",color:"#b91c1c",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>Opnieuw beginnen (wist mijn gegevens)</button>
+          <button onClick={onRestart} style={{width:"100%",padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#64748b",fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:FONT,textDecoration:"underline"}}>Wis mijn reis en opnieuw beginnen</button>
         </div>
         <DeviceWarning style={{marginTop:16}} />
       </div>
@@ -1962,6 +2168,8 @@ function TrilogieHome({onStartDeel1, onStartDeel2, onStartDeel3}){
 
 export default function MoralMaps(){
   const [screen,setScreen]=useState("roadtrip-landing");
+  const [wisReisOpen,setWisReisOpen]=useState(false);
+  const [steuntjeOpen,setSteuntjeOpen]=useState(false);
   const [reisId,setReisId]=useState("");
   const [phase,setPhase]=useState(0); // 0=privilege, 1=kaart, 2=gps, 3=dilemma's, 4=starr
   const [selVals,setSelVals]=useState([]);
@@ -2317,13 +2525,49 @@ export default function MoralMaps(){
   }
   function reset(){setScreen("roadtrip-landing");setReisId("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
   // Enige, volledige manier om alle lokale gegevens te verwijderen.
-  function wipeDevice(){
-    const ok = window.confirm("Weet je zeker dat je al je gegevens van dit toestel wilt wissen? Dit verwijdert je volledige voortgang en kan niet ongedaan worden gemaakt.");
-    if(!ok) return;
+  function currentJourneyStage() {
+    if (screen === "deel2") return `deel2_step_${deel2Step}`;
+    if (deel1Onboarding === "reismodus") return "deel1_reismodus";
+    if (deel1Onboarding === "reisgenoten") return "deel1_reisgenoten";
+    return `phase_${phase}`;
+  }
+
+  function pauseHier() {
+    if (!reisId) ensureActiveReisId();
+    const stage = currentJourneyStage();
+    const screenOverride = screen === "deel2" ? "deel2" : "app";
+    persistSession(stage, {
+      screen: screenOverride,
+      phase,
+      deel2Step,
+    });
+    const j = journey.read();
+    if (j) setPendingJourney(j);
+    setScreen("roadtrip-landing");
+  }
+
+  function requestWisReis() {
+    setWisReisOpen(true);
+  }
+
+  function confirmWisReis() {
+    // Enige localStorage-sleutel van deze app: moralmaps2_journey (JOURNEY_KEY).
     journey.clear();
     setPendingJourney(null);
+    setWisReisOpen(false);
     reset();
   }
+
+  const wisEnSteuntjeVoet = (
+    <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
+  );
+
+  const globaleOverlays = (
+    <>
+      <WisReisBevestiging open={wisReisOpen} onCancel={()=>setWisReisOpen(false)} onConfirm={confirmWisReis} />
+      <SteuntjeOverlay open={steuntjeOpen} onClose={() => setSteuntjeOpen(false)} />
+    </>
+  );
   function saveProgress(currentStage){
     return persistSession(currentStage);
   }
@@ -2388,6 +2632,8 @@ export default function MoralMaps(){
   }
 
   if(showReflectie3) return (
+    <>
+    {globaleOverlays}
     <div style={{minHeight:"100vh",background:"#0f172a",fontFamily:FONT,display:"flex",alignItems:"center",justifyContent:"center",padding:"24px 16px"}}>
       <div style={{maxWidth:560,width:"100%"}}>
         <div style={{textAlign:"center",marginBottom:32}}>
@@ -2409,21 +2655,51 @@ export default function MoralMaps(){
           Terug naar het begin ↺
         </button>
         <p style={{textAlign:"center",color:"#475569",fontSize:11,marginTop:10}}>Je sessie is opgeslagen — goed gedaan!</p>
+        <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
       </div>
     </div>
+    </>
   );
 
   if(screen==="roadtrip-landing") {
     const hasExistingTrip = Boolean(journey.read()?.reisId);
-    return <RoadtripLanding onStart={()=>setScreen("trilogie-home")} hasExistingTrip={hasExistingTrip} />;
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {globaleOverlays}
+      <div style={{ flex: 1 }}>
+        <RoadtripLanding onStart={()=>setScreen("trilogie-home")} hasExistingTrip={hasExistingTrip} />
+      </div>
+      <div style={{ padding: "0 16px 24px" }}>
+        <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
+      </div>
+    </div>
+  );
   }
 
-  if(screen==="trilogie-home" && pendingJourney)return <WelcomeBack journey={pendingJourney} onContinue={()=>{applyLoadedSession(pendingJourney);setPendingJourney(null);}} onRestart={wipeDevice} onHome={()=>setPendingJourney(null)}/>;
+  if(screen==="trilogie-home" && pendingJourney)return (
+    <>
+      {globaleOverlays}
+      <WelcomeBack journey={pendingJourney} onContinue={()=>{applyLoadedSession(pendingJourney);setPendingJourney(null);}} onRestart={requestWisReis} onHome={()=>setPendingJourney(null)}/>
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "0 16px 24px" }}>
+        <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
+      </div>
+    </>
+  );
   if(screen==="trilogie-home"){
-    return <TrilogieHome onStartDeel1={start} onStartDeel2={startDeel2Direct} onStartDeel3={startDeel3Direct}/>;
+    return (
+      <>
+        {globaleOverlays}
+        <TrilogieHome onStartDeel1={start} onStartDeel2={startDeel2Direct} onStartDeel3={startDeel3Direct}/>
+        <div style={{ maxWidth: 980, margin: "0 auto", padding: "0 16px 32px" }}>
+          <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
+        </div>
+      </>
+    );
   }
 
   if(showReflectie1) return (
+    <>
+    {globaleOverlays}
     <div style={{minHeight:"100vh",background:"#0f172a",fontFamily:FONT,display:"flex",alignItems:"center",justifyContent:"center",padding:"24px 16px"}}>
       <div style={{maxWidth:560,width:"100%"}}>
         <div style={{textAlign:"center",marginBottom:32}}>
@@ -2446,11 +2722,21 @@ export default function MoralMaps(){
         </button>
         <p style={{textAlign:"center",color:"#475569",fontSize:11,marginTop:10}}>Optioneel — je kunt ook direct doorgaan</p>
         <DeviceWarning style={{marginTop:16}} />
+        <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
       </div>
     </div>
+    </>
   );
 
-  if(showHalteCrossroads)return <HalteCrossroads coreValues={coreVals} onContinue={()=>{setShowHalteCrossroads(false);setScreen("deel2");setDeel2Step(0);}}/>;
+  if(showHalteCrossroads)return (
+    <>
+      {globaleOverlays}
+      <HalteCrossroads coreValues={coreVals} onContinue={()=>{setShowHalteCrossroads(false);setScreen("deel2");setDeel2Step(0);}}/>
+      <div style={{ padding: "0 16px 24px" }}>
+        <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
+      </div>
+    </>
+  );
   if(screen==="deel2"){
     const crossroadsOptions = [
       "Snelle, vertrouwde route direct naar je bestemming",
@@ -2460,7 +2746,8 @@ export default function MoralMaps(){
     ];
     return (
       <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+        {globaleOverlays}
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel}/>
         <div style={{maxWidth:880,margin:"0 auto",padding:"16px 16px 60px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
             <button onClick={()=>setScreen("trilogie-home")} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:999,padding:"8px 14px",cursor:"pointer",fontWeight:700,color:"#334155",fontFamily:FONT}}>← Terug</button>
@@ -2615,6 +2902,8 @@ export default function MoralMaps(){
               </div>
             </div>
           )}
+          <HaltePauze onPause={pauseHier} />
+          {wisEnSteuntjeVoet}
         </div>
       </div>
     );
@@ -2622,6 +2911,8 @@ export default function MoralMaps(){
 
 
   if(showReflectie2) return (
+    <>
+    {globaleOverlays}
     <div style={{minHeight:"100vh",background:"#0f172a",fontFamily:FONT,display:"flex",alignItems:"center",justifyContent:"center",padding:"24px 16px"}}>
       <div style={{maxWidth:560,width:"100%"}}>
         <div style={{textAlign:"center",marginBottom:32}}>
@@ -2643,11 +2934,21 @@ export default function MoralMaps(){
           Verder naar Deel 3 →
         </button>
         <p style={{textAlign:"center",color:"#475569",fontSize:11,marginTop:10}}>Optioneel — je kunt ook direct doorgaan</p>
+        <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
       </div>
     </div>
+    </>
   );
 
-  if(showHalteFinal)return <HalteFinalDestination onContinue={()=>{setShowHalteFinal(false);setScreen("deel3");}}/>;
+  if(showHalteFinal)return (
+    <>
+      {globaleOverlays}
+      <HalteFinalDestination onContinue={()=>{setShowHalteFinal(false);setScreen("deel3");}}/>
+      <div style={{ padding: "0 16px 24px" }}>
+        <AppVoet onWis={requestWisReis} onSteuntje={() => setSteuntjeOpen(true)} />
+      </div>
+    </>
+  );
   if(screen==="deel3"){
     const D3_PINK = "#d4537e";
     const D3_PINK_LIGHT = "rgba(212,83,126,.08)";
@@ -2659,7 +2960,8 @@ export default function MoralMaps(){
     });
     return (
       <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+        {globaleOverlays}
+        <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel}/>
         <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
           {/* Header */}
@@ -2826,6 +3128,7 @@ export default function MoralMaps(){
             </div>
           )}
 
+          {wisEnSteuntjeVoet}
         </div>
       </div>
     );
@@ -2835,8 +3138,9 @@ export default function MoralMaps(){
   // ── APP ──
   return(
     <div style={{background:"#f8fafc",minHeight:"100vh",fontFamily:FONT}}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;900&family=DM+Mono:wght@500&display=swap');*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
-      <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} onReset={wipeDevice} reisModusLabel={reisModusLabel}/>
+      {globaleOverlays}
+      <style>{`*{box-sizing:border-box}textarea,input{font-family:inherit}@keyframes spin{to{transform:rotate(360deg)}}${RESPONSIVE_CSS}`}</style>
+      <SessionCodeBar active={Boolean(reisId)} saveStatus={saveStatus} reisModusLabel={reisModusLabel}/>
       <div style={{maxWidth:680,margin:"0 auto",padding:"16px 16px 60px"}}>
 
         {deel1Onboarding === "reismodus" && (
@@ -3354,10 +3658,15 @@ export default function MoralMaps(){
             <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
               <button onClick={()=>setShowReflectie1(true)} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT,minWidth:140}}>✨ Afsluiten & verder →</button>
               <button onClick={()=>exportPDF(coreVals,dilResp,starr,{smsChoice,smsReflection},domColor,{ankerzin:ankerzin||formatAnkerzin(coreVals),weekdoel,microJournal,reflectie1})} style={{flex:1,padding:"12px",borderRadius:99,border:"none",background:TEAL,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",boxShadow:`0 4px 12px ${TEAL_GLOW}`,fontFamily:FONT,minWidth:140}}>↓ Download PDF</button>
-              <button onClick={wipeDevice} style={{flex:1,padding:"12px",borderRadius:99,border:"1.5px solid #e2e8f0",background:"#fff",color:"#334155",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>🗑 Wis mijn gegevens</button>
             </div>
           </div>
         )}
+
+        {screen === "app" && (deel1Onboarding || (phase >= 0 && phase <= 6)) && (
+          <HaltePauze onPause={pauseHier} />
+        )}
+
+        {wisEnSteuntjeVoet}
 
       </div>
     </div>
