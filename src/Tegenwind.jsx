@@ -890,7 +890,7 @@ export default function Tegenwind({
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               <button
                 type="button"
-                onClick={onExportPdf}
+                onClick={(e) => onExportPdf?.(e.currentTarget)}
                 style={{
                   flex: "1 1 200px",
                   padding: "11px",
