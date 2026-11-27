@@ -24,16 +24,19 @@ export const REISGENOTEN = {
     kleur: "#1E4E79",
     intro:
       "Hoi, ik ben Noor. Ik vraag nogal vaak 'waarom?'. Zeg het maar als ik irritant word.",
+    rol: "Noor stelt vragen. Ze helpt je stilstaan bij waarom je iets kiest.",
   },
   daan: {
     naam: "Daan",
     kleur: "#4E6B4A",
     intro: "Daan. Ik heb chips mee en ik zeg gewoon wat ik denk. Soms handig, soms niet.",
+    rol: "Daan zegt wat hij denkt. Zijn eerste reactie helpt je te merken of jij het ermee eens bent.",
   },
   yara: {
     naam: "Yara",
     kleur: "#B8471F",
     intro: "Ik ben Yara. Ik schrijf onderweg dingen op, dan kunnen we later terugkijken.",
+    rol: "Yara schrijft op. Zij helpt je later terugkijken op wat je onderweg zei.",
   },
 };
 
