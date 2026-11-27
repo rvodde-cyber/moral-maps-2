@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         destination: CANONICAL,
-        permanent: true,
+        permanent: false,
       },
     ];
   },
