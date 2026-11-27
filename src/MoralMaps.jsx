@@ -541,18 +541,14 @@ const ASSET_IMAGES = {
     smsEvent: "/sms-koud-station.jpg",
   },
   deel2: {
-    hero: "/deel2-hero-onderweg-kompas.jpg",
     phoneMockup: "/moral-maps-phone-crossroads.jpg",
     crossroadsEvent: "/crossroads-omleiding.jpg",
     routeProgress: "/deel2-route-progress-kaart.jpg",
     tankstopGauge: "/koersmeter-82.jpg",
     transcultureleDialoog: "/werkblad-transculturele-dialoog.jpg",
-    insightWindow: "/deel2-inzicht-uit-het-raam.jpg",
   },
   deel3: {
-    hero: "/deel3-hero-bestemming-horizon.jpg",
     bridgeEvent: "/brug-in-de-mist.jpg",
-    phoneMockup: "/mockup-deel3-bridge.jpg",
     socialisatieUi: "/deel3-terugblik.jpg",
     socialisatieMatrix: "/deel3-vooruitblik.jpg",
     commitmentCheckpoint: "/deel3-grow.jpg",
