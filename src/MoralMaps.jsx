@@ -565,11 +565,34 @@ const ASSET_IMAGES = {
     hero: "/deel3-hero-bestemming-horizon.jpg",
     bridgeEvent: "/brug-in-de-mist.jpg",
     phoneMockup: "/mockup-deel3-bridge.jpg",
-    socialisatieUi: "/deel3-terugblik.png",
-    socialisatieMatrix: "/deel3-vooruitblik.png",
-    commitmentCheckpoint: "/deel3-grow.png",
+    socialisatieUi: "/deel3-terugblik.jpg",
+    socialisatieMatrix: "/deel3-vooruitblik.jpg",
+    commitmentCheckpoint: "/deel3-grow.jpg",
   },
 };
+
+const CONTENT_IMAGE_DIMS = {
+  "/moral-maps-phone=art.jpg": [567, 636],
+  "/sms-koud-station.jpg": [1200, 655],
+  "/moral-maps-phone-crossroads.jpg": [992, 1070],
+  "/crossroads-omleiding.jpg": [1200, 655],
+  "/koersmeter-82.jpg": [1200, 655],
+  "/deel2-route-progress-kaart.jpg": [1200, 670],
+  "/werkblad-transculturele-dialoog.jpg": [1200, 670],
+  "/brug-in-de-mist.jpg": [1200, 655],
+  "/deel3-terugblik.jpg": [1024, 506],
+  "/deel3-vooruitblik.jpg": [1024, 506],
+  "/deel3-grow.jpg": [1024, 506],
+};
+
+function contentImgProps(src) {
+  const dims = CONTENT_IMAGE_DIMS[src];
+  return {
+    loading: "lazy",
+    decoding: "async",
+    ...(dims ? { width: dims[0], height: dims[1] } : {}),
+  };
+}
 
 function restoreDilemmas(titles) {
   if (!Array.isArray(titles) || !titles.length) return null;
@@ -1761,7 +1784,7 @@ function VreemdeAnder({coreVals, onComplete, onStepSave, initial}){
         privePdf="Blijft op je toestel"
       />
       <div style={{marginBottom:16,borderRadius:12,overflow:"hidden",border:"1px solid #e2e8f0"}}>
-        <img src={ASSET_IMAGES.deel2.transcultureleDialoog} alt="Reflectie op ontmoeting en verschil" style={{width:"100%",display:"block",maxHeight:240,objectFit:"cover"}} />
+        <img {...contentImgProps(ASSET_IMAGES.deel2.transcultureleDialoog)} src={ASSET_IMAGES.deel2.transcultureleDialoog} alt="Reflectie op ontmoeting en verschil" style={{width:"100%",display:"block",maxHeight:240,objectFit:"cover"}} />
       </div>
       <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",overflow:"hidden",marginBottom:20}}>
         <div style={{background:"linear-gradient(135deg,#6366f1,#4f46e5)",padding:"20px 22px"}}>
@@ -2069,6 +2092,9 @@ function RoadtripLanding({ onStart, hasExistingTrip }) {
           <img
             src="/images/roadtrip-hero-desktop.jpg"
             alt="Een slingerende weg met cipressen door heuvels bij dageraad, een auto met brandende achterlichten rijdt richting de bergen"
+            width={2400}
+            height={1371}
+            decoding="async"
           />
         </picture>
         <div className="mm-rt-shade" aria-hidden="true" />
@@ -2990,7 +3016,7 @@ export default function MoralMaps(){
           {deel2Step===0&&(
             <div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:8,marginBottom:12}}>
-                <img src={ASSET_IMAGES.deel2.phoneMockup} alt="Deel 2 smartphone mockup" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}} />
+                <img {...contentImgProps(ASSET_IMAGES.deel2.phoneMockup)} src={ASSET_IMAGES.deel2.phoneMockup} alt="Deel 2 smartphone mockup" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}} />
               </div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:"20px 22px"}}>
                 <OpdrachtkaartIntro
@@ -3011,7 +3037,7 @@ export default function MoralMaps(){
           {deel2Step===1&&(
             <div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:8,marginBottom:12}}>
-                <img src={ASSET_IMAGES.deel2.crossroadsEvent} alt="Crossroads met vier afslagen" style={{width:"100%",display:"block",borderRadius:10,maxHeight:300,objectFit:"cover"}} />
+                <img {...contentImgProps(ASSET_IMAGES.deel2.crossroadsEvent)} src={ASSET_IMAGES.deel2.crossroadsEvent} alt="Crossroads met vier afslagen" style={{width:"100%",display:"block",borderRadius:10,maxHeight:300,objectFit:"cover"}} />
               </div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:"20px 22px"}}>
                 <OpdrachtkaartIntro
@@ -3052,7 +3078,7 @@ export default function MoralMaps(){
               <p style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>De Tankstop</p>
               <h3 style={{margin:"0 0 8px",fontSize:18,fontWeight:900,color:"#0f172a"}}>🛣️ Tankstop-check</h3>
               <div style={{marginBottom:12,borderRadius:12,overflow:"hidden",border:"1px solid #e2e8f0"}}>
-                <img src={ASSET_IMAGES.deel2.tankstopGauge} alt="Koersmeter als visual voor energiebalans" style={{width:"100%",display:"block",maxHeight:220,objectFit:"cover"}} />
+                <img {...contentImgProps(ASSET_IMAGES.deel2.tankstopGauge)} src={ASSET_IMAGES.deel2.tankstopGauge} alt="Koersmeter als visual voor energiebalans" style={{width:"100%",display:"block",maxHeight:220,objectFit:"cover"}} />
               </div>
               <div style={{display:"grid",gap:10,marginBottom:10}}>
                 <textarea value={tankstop.energie} onChange={e=>setTankstop({...tankstop,energie:e.target.value})} rows={2} placeholder="Wat geeft je op dit moment energie?" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,lineHeight:1.6,resize:"vertical",outline:"none",fontFamily:FONT}} />
@@ -3077,7 +3103,7 @@ export default function MoralMaps(){
               <p style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>De Omweg</p>
               <h3 style={{margin:"0 0 8px",fontSize:18,fontWeight:900,color:"#0f172a"}}>⤴️ De Omweg</h3>
               <div style={{marginBottom:12,borderRadius:12,overflow:"hidden",border:"1px solid #e2e8f0"}}>
-                <img src={ASSET_IMAGES.deel2.routeProgress} alt="Route en bijsturen onderweg" style={{width:"100%",display:"block",maxHeight:240,objectFit:"cover"}} />
+                <img {...contentImgProps(ASSET_IMAGES.deel2.routeProgress)} src={ASSET_IMAGES.deel2.routeProgress} alt="Route en bijsturen onderweg" style={{width:"100%",display:"block",maxHeight:240,objectFit:"cover"}} />
               </div>
               <p style={{fontSize:12,color:"#64748b",lineHeight:1.6,margin:"0 0 10px"}}>Vraag jezelf: hield of stuurde je bij vanwege je waarden, of vanwege iets anders, zoals angst, gemak of wat anderen verwachtten?</p>
               <div style={{display:"grid",gap:10,marginBottom:10}}>
@@ -3220,7 +3246,7 @@ export default function MoralMaps(){
           {deel3Step===0&&(
             <div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:8,marginBottom:12}}>
-                <img src={ASSET_IMAGES.deel3.bridgeEvent} alt="De brug in de mist" style={{width:"100%",height:"auto",display:"block",borderRadius:10,maxHeight:280,objectFit:"cover"}}/>
+                <img {...contentImgProps(ASSET_IMAGES.deel3.bridgeEvent)} src={ASSET_IMAGES.deel3.bridgeEvent} alt="De brug in de mist" style={{width:"100%",height:"auto",display:"block",borderRadius:10,maxHeight:280,objectFit:"cover"}}/>
               </div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:"20px 22px"}}>
                 <OpdrachtkaartIntro
@@ -3257,7 +3283,7 @@ export default function MoralMaps(){
           {deel3Step===1&&(
             <div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:8,marginBottom:12}}>
-                <img src={ASSET_IMAGES.deel3.socialisatieUi} alt="Terugblik op je reis" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}}/>
+                <img {...contentImgProps(ASSET_IMAGES.deel3.socialisatieUi)} src={ASSET_IMAGES.deel3.socialisatieUi} alt="Terugblik op je reis" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}}/>
               </div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:"20px 22px"}}>
                 <OpdrachtkaartIntro
@@ -3305,7 +3331,7 @@ export default function MoralMaps(){
           {deel3Step===2&&(
             <div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:8,marginBottom:12}}>
-                <img src={ASSET_IMAGES.deel3.socialisatieMatrix} alt="Vooruitblik op je bestemming" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}}/>
+                <img {...contentImgProps(ASSET_IMAGES.deel3.socialisatieMatrix)} src={ASSET_IMAGES.deel3.socialisatieMatrix} alt="Vooruitblik op je bestemming" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}}/>
               </div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:"20px 22px"}}>
                 <OpdrachtkaartIntro
@@ -3331,7 +3357,7 @@ export default function MoralMaps(){
           {deel3Step===3&&(
             <div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:8,marginBottom:12}}>
-                <img src={ASSET_IMAGES.deel3.commitmentCheckpoint} alt="Commitment checkpoint" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}}/>
+                <img {...contentImgProps(ASSET_IMAGES.deel3.commitmentCheckpoint)} src={ASSET_IMAGES.deel3.commitmentCheckpoint} alt="Commitment checkpoint" style={{width:"100%",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}}/>
               </div>
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:"20px 22px",marginBottom:12}}>
                 <OpdrachtkaartIntro
@@ -3652,7 +3678,7 @@ export default function MoralMaps(){
               zoPakJeAan="Past geen enkele optie perfect? Kies de minst slechte. Dat is precies waarom het een dilemma is."
             />
             <div style={{background:"#fff",borderRadius:12,border:"1px solid #e2e8f0",padding:8,marginBottom:12}}>
-              <img src={ASSET_IMAGES.deel1.phoneMockup} alt="Deel 1 smartphone mockup" style={{width:"100%",height:"auto",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}} />
+              <img {...contentImgProps(ASSET_IMAGES.deel1.phoneMockup)} src={ASSET_IMAGES.deel1.phoneMockup} alt="Deel 1 smartphone mockup" style={{width:"100%",height:"auto",display:"block",borderRadius:10,maxHeight:260,objectFit:"cover"}} />
             </div>
             <div style={{background:"#fff",borderRadius:12,border:"1px solid #e2e8f0",padding:"12px 18px",marginBottom:16}}>
               <p style={{fontSize:13,color:"#334155",lineHeight:1.6,margin:0}}>Twee situaties, één vraag: wat zou jij doen? En past dat bij je top 3?</p>
@@ -3876,7 +3902,7 @@ export default function MoralMaps(){
                 />
                 <p style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>📩 Afsluitende SMS-opdracht</p>
                 <div style={{marginBottom:10,borderRadius:12,overflow:"hidden",border:"1px solid #e2e8f0"}}>
-                  <img src={ASSET_IMAGES.deel1.smsEvent} alt="Onverwachte sms in slaapkamer om 5 uur" style={{width:"100%",height:"auto",display:"block",maxHeight:260,objectFit:"cover"}} />
+                  <img {...contentImgProps(ASSET_IMAGES.deel1.smsEvent)} src={ASSET_IMAGES.deel1.smsEvent} alt="Onverwachte sms in slaapkamer om 5 uur" style={{width:"100%",height:"auto",display:"block",maxHeight:260,objectFit:"cover"}} />
                 </div>
                 <p style={{fontSize:13,color:"#334155",lineHeight:1.7,margin:0}}>
                   Vlak voor je afsluit ontvang je een bericht van een goede vriend uit het verleden:
