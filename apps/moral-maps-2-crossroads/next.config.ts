@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const CANONICAL = "https://moral-maps.vercel.app";
+const CANONICAL = "https://moral-maps-2.vercel.app/";
 
 const nextConfig: NextConfig = {
   turbopack: {
