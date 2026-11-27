@@ -52,6 +52,19 @@ const PARTS = [
     accentBorder: "rgba(212,83,126,.3)",
     icon: "🏁",
   },
+  {
+    num: "04",
+    tag: "Tegenwind",
+    title: "Moral Maps 4",
+    subtitle: "Wat houdt je tegen?",
+    desc: "Je kijkt wat je tegenhoudt om te doen wat je al wist, en maakt een als-dan-plan voor onderweg.",
+    duration: "± 30 min",
+    url: "https://moral-maps.vercel.app",
+    accent: "#0f766e",
+    accentDim: "rgba(15,118,110,.15)",
+    accentBorder: "rgba(15,118,110,.35)",
+    icon: "🌧",
+  },
 ];
 
 export default function MapsLanding({ onStart }) {
@@ -64,7 +77,7 @@ export default function MapsLanding({ onStart }) {
       if (code.trim()) onStart(code.trim().toUpperCase(), null, null);
       else onStart("", null, null);
     } else {
-      // Deel 2 of 3: navigeer naar externe URL
+      // Deel 2/3 (extern) of 4 (zelfde app): navigeer naar URL
       const dest = code.trim()
         ? `${url}?code=${encodeURIComponent(code.trim().toUpperCase())}`
         : url;
@@ -123,7 +136,7 @@ export default function MapsLanding({ onStart }) {
               fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#5dcaa5", textTransform: "uppercase",
             }}>
               <span className="pulse" style={{ width: 7, height: 7, borderRadius: "50%", background: "#1d9e75", display: "inline-block" }}/>
-              Een reis in drie delen
+              Een reis in vier delen
             </div>
 
             <h1 className="anim-2" style={{
@@ -133,7 +146,7 @@ export default function MapsLanding({ onStart }) {
             }}>
               Moral Maps —<br/>
               <em style={{ color: "#1d9e75", fontStyle: "italic" }}>Jouw Reis</em><br/>
-              in 3 Delen
+              in 4 Delen
             </h1>
 
             <p className="anim-3" style={{
@@ -147,8 +160,8 @@ export default function MapsLanding({ onStart }) {
             <p className="anim-3" style={{
               fontSize: 14, color: "#64748b", lineHeight: 1.8, marginBottom: 36, maxWidth: 420,
             }}>
-              In drie delen ontdek je je startpositie, navigeer je door kruispunten,
-              en bepaal je je bestemming — bewust, vanuit je eigen innerlijke GPS.
+              In vier delen ontdek je je startpositie, navigeer je door kruispunten,
+              bepaal je je bestemming en sta je de tegenwind — bewust, vanuit je eigen innerlijke GPS.
             </p>
 
             {/* Groepscode invoer */}
@@ -206,7 +219,7 @@ export default function MapsLanding({ onStart }) {
                 <div style={{ position: "relative", zIndex: 2, background: "#fff", margin: "7px 7px 0", borderRadius: 10, padding: "6px 10px", boxShadow: "0 2px 8px rgba(0,0,0,.1)", display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ fontSize: 10 }}>📍</span>
                   <span style={{ fontSize: 9, fontWeight: 800, color: "#1d9e75", flex: 1 }}>Moral Maps</span>
-                  <span style={{ fontSize: 8, color: "#94a3b8", fontWeight: 600 }}>3 delen</span>
+                  <span style={{ fontSize: 8, color: "#94a3b8", fontWeight: 600 }}>4 delen</span>
                 </div>
                 {/* Kruispunten visualisatie */}
                 <div style={{ position: "relative", zIndex: 2, padding: "10px 8px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -244,7 +257,7 @@ export default function MapsLanding({ onStart }) {
 
         </section>
 
-        {/* ── DRIE DELEN ── */}
+        {/* ── VIER DELEN ── */}
         <section>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
             {PARTS.map((p, i) => (

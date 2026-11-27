@@ -9,6 +9,7 @@
 // ============================================================
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useScrollNaarBoven } from "./useScrollNaarBoven.js";
 import HalteCrossroads from "./HalteCrossroads";
 import HalteFinalDestination from "./HalteFinalDestination";
 import {
@@ -2189,12 +2190,13 @@ function TrilogieHome({ onStartDeel1, onStartDeel2, onStartDeel3, onStartDeel4, 
               <p style={{fontSize:11,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:1.2,margin:"0 0 6px"}}>Moral Maps Roadtrip</p>
               <h1 style={{margin:0,fontSize:32,fontWeight:900,letterSpacing:-.8,color:"#0f172a"}}>Welkom bij je morele reis</h1>
               <p style={{margin:"10px 0 0",fontSize:14,color:"#475569",lineHeight:1.7}}>
-                Wat vind jij écht belangrijk in je werk? En hoe houd je daar koers op als het spannend wordt? In drie delen van ongeveer een halfuur ontdek je het, in je eigen tempo.
+                Wat vind jij écht belangrijk in je werk? En hoe houd je daar koers op als het spannend wordt? In vier delen van ongeveer een halfuur ontdek je het, in je eigen tempo.
               </p>
               <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:12}}>
                 <span style={{fontSize:11,padding:"4px 10px",borderRadius:99,background:"#eef2ff",color:"#3730a3",fontWeight:700}}>I: The Beginning</span>
                 <span style={{fontSize:11,padding:"4px 10px",borderRadius:99,background:"#ecfeff",color:"#155e75",fontWeight:700}}>II: Crossroads</span>
                 <span style={{fontSize:11,padding:"4px 10px",borderRadius:99,background:"#f0fdf4",color:"#166534",fontWeight:700}}>III: Final Destination</span>
+                <span style={{fontSize:11,padding:"4px 10px",borderRadius:99,background:"#ecfdf5",color:"#0f766e",fontWeight:700}}>IV: Tegenwind</span>
               </div>
             </div>
             <div className="mm-hero-phone" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"8px 0"}}>
@@ -2206,18 +2208,19 @@ function TrilogieHome({ onStartDeel1, onStartDeel2, onStartDeel3, onStartDeel4, 
                   <div style={{position:"relative",zIndex:2,background:"#fff",margin:"6px 6px 0",borderRadius:10,padding:"5px 8px",boxShadow:"0 2px 8px rgba(0,0,0,.1)",display:"flex",alignItems:"center",gap:5}}>
                     <span style={{fontSize:10}}>📍</span>
                     <span style={{fontSize:9,fontWeight:800,color:"#1d9e75",flex:1}}>Moral Maps</span>
-                    <span style={{fontSize:8,color:"#94a3b8",fontWeight:600}}>3 delen</span>
+                    <span style={{fontSize:8,color:"#94a3b8",fontWeight:600}}>4 delen</span>
                   </div>
                   <div style={{position:"relative",zIndex:2,padding:"8px 8px 0"}}>
                     {[
                       {icon:"🗺",label:"The Beginning",color:"#1d9e75",time:"25 min"},
                       {icon:"🛣",label:"Crossroads",color:"#ef9f27",time:"30 min"},
                       {icon:"🏁",label:"Final Destination",color:"#d4537e",time:"35 min"},
+                      {icon:"🌧",label:"Tegenwind",color:"#0f766e",time:"30 min"},
                     ].map((s,i)=>(
                       <div key={i} style={{display:"flex",alignItems:"flex-start",gap:6}}>
                         <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
                           <div style={{width:22,height:22,borderRadius:"50%",background:s.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,flexShrink:0}}>{s.icon}</div>
-                          {i<2&&<div style={{width:2,height:16,background:`${s.color}50`,margin:"2px 0"}}/>}
+                          {i<3&&<div style={{width:2,height:12,background:`${s.color}50`,margin:"2px 0"}}/>}
                         </div>
                         <div style={{paddingTop:2}}>
                           <p style={{fontSize:9,fontWeight:700,color:"#1e293b",margin:0}}>{s.label}</p>
@@ -2228,7 +2231,7 @@ function TrilogieHome({ onStartDeel1, onStartDeel2, onStartDeel3, onStartDeel4, 
                   </div>
                   <div style={{position:"absolute",bottom:6,left:6,right:6,background:"linear-gradient(135deg,#1d9e75,#0f6e56)",borderRadius:10,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                     <span style={{color:"#fff",fontSize:9,fontWeight:800}}>Jouw bestemming</span>
-                    <span style={{color:"rgba(255,255,255,.7)",fontSize:8,fontWeight:600}}>±90 min</span>
+                    <span style={{color:"rgba(255,255,255,.7)",fontSize:8,fontWeight:600}}>±120 min</span>
                   </div>
                 </div>
               </div>
@@ -2427,6 +2430,23 @@ export default function MoralMaps(){
     if (!reisgenotenGezien) return "reisgenoten";
     return null;
   }, [screen, phase, selVals.length, coreVals.length, reisModus, reisgenotenGezien]);
+
+  useScrollNaarBoven([
+    screen,
+    phase,
+    deel2Step,
+    deel3Step,
+    deel4Step,
+    deel4PechOpen,
+    showReflectie1,
+    showReflectie2,
+    showReflectie3,
+    showHalteCrossroads,
+    showHalteFinal,
+    showSmsDilemma,
+    curDil,
+    deel1Onboarding,
+  ]);
 
   useEffect(() => {
     const onHash = () => setSprint0Test(window.location.hash === "#sprint0-test");

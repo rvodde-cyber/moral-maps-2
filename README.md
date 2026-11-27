@@ -1,6 +1,6 @@
 # Moral Maps — Trilogie
 
-> Een interactieve morele reis in drie delen voor HBO-studenten en professionals.
+> Een interactieve morele reis in vier delen voor HBO-studenten en professionals.
 
 ---
 
@@ -8,11 +8,11 @@
 
 | Deel | Titel | URL | Tech |
 |------|-------|-----|------|
-| 1–3 | **Moral Maps Trilogie** | moral-maps.vercel.app | React + Vite |
+| 1–4 | **Moral Maps Roadtrip** | moral-maps.vercel.app | React + Vite |
 | 2 (oud) | Crossroads | moral-maps-2-crossroads.vercel.app | redirect naar de hoofdapp |
 | 3 (oud) | Final Destination | moral-maps-3-final-destination.vercel.app | redirect naar de hoofdapp |
 
-De trilogie leeft in één app (`src/MoralMaps.jsx`). De oude Vercel-projecten voor Deel 2 en 3 blijven bestaan zodat bestaande URL’s blijven werken; ze sturen door naar `moral-maps.vercel.app`.
+De reis (I–IV) leeft in één app (`src/MoralMaps.jsx`). De oude Vercel-projecten voor Deel 2 en 3 blijven bestaan zodat bestaande URL’s blijven werken; ze sturen door naar `moral-maps.vercel.app`.
 
 ---
 
@@ -26,7 +26,7 @@ Studenten en professionals doorlopen een morele reis:
 4. **STARR Reflectie** — eigen ervaring beschrijven
 5. **Reisverslag** — exporteerbaar als PDF
 
-In deel 2 navigeer je kruispunten. In deel 3 bepaal je je eindbestemming.
+In deel 2 navigeer je kruispunten. In deel 3 bepaal je je eindbestemming. In deel 4 (Tegenwind) kijk je wat je tegenhoudt en maak je een als-dan-plan.
 
 ---
 
