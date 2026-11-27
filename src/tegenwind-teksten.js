@@ -13,7 +13,7 @@ export const OPENING = {
   regel: "Niks hoeft. Sla gerust een vraag over.",
 };
 
-export const STAP_OHNE_DELEN =
+export const STAP_ZONDER_EERDERE_DELEN =
   "Heb je eerdere delen nog niet gedaan? Geen probleem, je kunt hier gewoon beginnen.";
 
 export const STAP1 = {

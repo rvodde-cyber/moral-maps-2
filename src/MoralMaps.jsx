@@ -797,130 +797,6 @@ function SteuntjeOverlay({ open, onClose }) {
   );
 }
 
-function Verdieping({ vraag, type, opties = [], waarde, onChange, onSkip, metSteuntje }) {
-  const chipBase = {
-    padding: "8px 14px",
-    borderRadius: 99,
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    fontFamily: FONT,
-    border: "1.5px solid #e2e8f0",
-    background: "#fff",
-    color: "#334155",
-  };
-  return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 14,
-        border: "1px solid #e2e8f0",
-        padding: "16px 18px",
-        marginBottom: 16,
-        boxShadow: "0 1px 3px rgba(15,23,42,.04)",
-      }}
-    >
-      <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "#0f172a", lineHeight: 1.5, fontFamily: FONT }}>{vraag}</p>
-      {type === "keuze" && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
-          {opties.map((opt) => {
-            const id = typeof opt === "string" ? opt : opt.id ?? opt.label;
-            const label = typeof opt === "string" ? opt : opt.label ?? opt.id;
-            const active = waarde === id;
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => onChange?.(id)}
-                style={{
-                  ...chipBase,
-                  border: `1.5px solid ${active ? TEAL : "#e2e8f0"}`,
-                  background: active ? TEAL_LIGHT : "#fff",
-                  color: active ? TEAL_DARK : "#334155",
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-      {type === "tekst" && (
-        <textarea
-          value={waarde ?? ""}
-          onChange={(e) => onChange?.(e.target.value)}
-          rows={2}
-          placeholder="Schrijf hier je antwoord…"
-          style={{
-            width: "100%",
-            padding: "10px 12px",
-            borderRadius: 10,
-            border: "1.5px solid #e2e8f0",
-            fontSize: 14,
-            lineHeight: 1.6,
-            resize: "vertical",
-            outline: "none",
-            fontFamily: FONT,
-            marginBottom: 4,
-          }}
-          onFocus={(e) => { e.target.style.borderColor = TEAL; }}
-          onBlur={(e) => { e.target.style.borderColor = "#e2e8f0"; }}
-        />
-      )}
-      {type === "schaal" && (
-        <div style={{ marginBottom: 4 }}>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-            {[1, 2, 3, 4, 5].map((n) => {
-              const active = Number(waarde) === n;
-              return (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => onChange?.(n)}
-                  style={{
-                    ...chipBase,
-                    minWidth: 40,
-                    border: `1.5px solid ${active ? TEAL : "#e2e8f0"}`,
-                    background: active ? TEAL : "#fff",
-                    color: active ? "#fff" : "#334155",
-                  }}
-                >
-                  {n}
-                </button>
-              );
-            })}
-          </div>
-          {opties?.length >= 2 && (
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 11, color: "#64748b", fontFamily: FONT }}>
-              <span>{opties[0]}</span>
-              <span>{opties[opties.length - 1]}</span>
-            </div>
-          )}
-        </div>
-      )}
-      <button
-        type="button"
-        onClick={() => onSkip?.()}
-        style={{
-          marginTop: 12,
-          padding: 0,
-          border: "none",
-          background: "none",
-          fontSize: 12,
-          fontWeight: 600,
-          color: "#64748b",
-          cursor: "pointer",
-          textDecoration: "underline",
-          fontFamily: FONT,
-        }}
-      >
-        {OVERSLAAN}
-      </button>
-      {metSteuntje && <Steuntje />}
-    </div>
-  );
-}
-
 const VOET_LINK_STIJL = {
   padding: 0,
   border: "none",
@@ -1984,7 +1860,7 @@ function exportPDFDeel2({coreVals, crossroadsChoice, crossroadsReflectie, tankst
   openPrintView(html, "Moral Maps — Deel 2", returnFocusEl);
 }
 
-function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, deel3Terugblik, deel3Vooruitblik, deel3Synthese, deel3Grow, domColor, socialisatie, profile, reflectie3}, returnFocusEl){
+function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, deel3Terugblik, deel3Vooruitblik, deel3Grow, domColor, socialisatie, profile, reflectie3}, returnFocusEl){
   const c = CM[domColor];
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const fonts = pdfPrintFontCss(origin);
@@ -2015,7 +1891,6 @@ function exportPDFDeel3Portfolio({coreVals, dilResp, starr, smsDilemma, bridge, 
     <div class="section"><div class="label">De Brug in de Mist (Deel 3 signature)</div><div class="value"><strong>Ballast:</strong> ${bridge?.ballast || "Niet ingevuld"}</div><div class="value"><strong>Meenemen:</strong> ${bridge?.meenemen || "Niet ingevuld"}</div><div class="value"><strong>Hoop te vinden:</strong> ${bridge?.vinden || "Niet ingevuld"}</div><div class="value"><strong>Kernwaarde (GPS):</strong> ${bridge?.gps || bridge?.kompas || "Niet ingevuld"}</div></div>
     <div class="section"><div class="label">Terugblik (scharnierpunt, patroon, ware noorden)</div><div class="value"><strong>Scharnierpunt:</strong> ${deel3Terugblik?.scharnierpunt || "Niet ingevuld"}</div><div class="value"><strong>Patroon:</strong> ${deel3Terugblik?.patroon || "Niet ingevuld"}</div><div class="value"><strong>Ware noorden:</strong> ${deel3Terugblik?.noorden || "Niet ingevuld"}</div></div>
     <div class="section"><div class="label">Vooruitblik (nalatenschap, richting, belofte)</div><div class="value"><strong>Nalatenschap:</strong> ${deel3Vooruitblik?.nalatenschap || "Niet ingevuld"}</div><div class="value"><strong>Richting:</strong> ${deel3Vooruitblik?.richting || "Niet ingevuld"}</div><div class="value"><strong>Belofte:</strong> ${deel3Vooruitblik?.belofte || "Niet ingevuld"}</div></div>
-    ${deel3Synthese && deel3Synthese.trim() ? `<div class="section"><div class="label">Synthese - Persoonlijke routekaart</div><div class="value">${deel3Synthese}</div></div>` : ""}
     <div class="section"><div class="label">Persoonlijk actieplan (GROW) - eindpagina</div>
       <div class="value"><strong>Doel:</strong><br/>${deel3Grow?.goal || "Niet ingevuld"}</div>
       <div class="value" style="margin-top:10px"><strong>Realiteit:</strong><br/>${deel3Grow?.reality || "Niet ingevuld"}</div>
@@ -2354,7 +2229,6 @@ export default function MoralMaps(){
   const [bridge,setBridge]=useState({ballast:"",meenemen:"",vinden:"",gps:""});
   const [deel3Terugblik,setDeel3Terugblik]=useState({scharnierpunt:"",patroon:"",noorden:""});
   const [deel3Vooruitblik,setDeel3Vooruitblik]=useState({nalatenschap:"",richting:"",belofte:""});
-  const [deel3Synthese,setDeel3Synthese]=useState("");
   const [deel3Grow,setDeel3Grow]=useState({goal:"",reality:"",options:"",will:""});
   const [saved,setSaved]=useState(false);
   const [showHalteCrossroads,setShowHalteCrossroads]=useState(false);
@@ -2386,16 +2260,7 @@ export default function MoralMaps(){
     extraAssignment:"",
   });
   const [reisModus,setReisModus]=useState("");
-  const [verdieping,setVerdieping]=useState({});
   const [reisgenotenGezien,setReisgenotenGezien]=useState(false);
-  const [sprint0Test,setSprint0Test]=useState(() =>
-    typeof window !== "undefined" && window.location.hash === "#sprint0-test"
-  );
-  const [sprint0TestState,setSprint0TestState]=useState({
-    keuze:"",
-    tekst:"",
-    schaal:null,
-  });
 
   const [saving,setSaving]=useState(false);
   const [saveStatus,setSaveStatus]=useState(null);
@@ -2427,10 +2292,10 @@ export default function MoralMaps(){
     snapshotRef.current = {
       reisId, screen, phase, selVals, coreVals, dilResp, curDil,
       dilemmas, starr, socialisatiePayload, bridge, deel3Terugblik, deel3Vooruitblik,
-      deel3Synthese, deel3Grow, deel2Step, deel3Step, deel4, deel4Step, crossroadsChoice, crossroadsReflectie,
+      deel3Grow, deel2Step, deel3Step, deel4, deel4Step, crossroadsChoice, crossroadsReflectie,
       tankstop, omweg, deel2Inzicht, vreemdeAnderResult, smsChoice, smsReflection, domColor,
       reflectie1, reflectie2, reflectie3,
-      reisModus, verdieping, reisgenotenGezien,
+      reisModus, reisgenotenGezien,
     };
   });
 
@@ -2464,12 +2329,6 @@ export default function MoralMaps(){
     curDil,
     deel1Onboarding,
   ]);
-
-  useEffect(() => {
-    const onHash = () => setSprint0Test(window.location.hash === "#sprint0-test");
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, []);
 
   useEffect(() => {
     registerOpenPrintView((job) => setPrintJob(job));
@@ -2506,7 +2365,6 @@ export default function MoralMaps(){
       bridge: overrides.bridge ?? s.bridge,
       deel3Terugblik: overrides.deel3Terugblik ?? s.deel3Terugblik,
       deel3Vooruitblik: overrides.deel3Vooruitblik ?? s.deel3Vooruitblik,
-      deel3Synthese: overrides.deel3Synthese ?? s.deel3Synthese,
       deel3Grow: overrides.deel3Grow ?? s.deel3Grow,
       smsChoice: overrides.smsChoice ?? s.smsChoice,
       smsReflection: overrides.smsReflection ?? s.smsReflection,
@@ -2525,7 +2383,6 @@ export default function MoralMaps(){
       socialisatie: overrides.socialisatie ?? s.socialisatiePayload,
       reisModus: overrides.reisModus ?? s.reisModus ?? "",
       reisgenotenGezien: Boolean(overrides.reisgenotenGezien ?? s.reisgenotenGezien),
-      verdieping: overrides.verdieping ?? s.verdieping ?? {},
       vreemdeAnder: progress,
     };
   }
@@ -2575,9 +2432,9 @@ export default function MoralMaps(){
   }, [
     reisId, screen, phase, deel2Step, deel3Step, deel4, deel4Step, selVals, coreVals, dilResp,
     curDil, starr, socialisatiePayload, bridge, deel3Terugblik, deel3Vooruitblik,
-    deel3Synthese, deel3Grow, crossroadsChoice, crossroadsReflectie, tankstop, omweg,
+    deel3Grow, crossroadsChoice, crossroadsReflectie, tankstop, omweg,
     deel2Inzicht, vreemdeAnderResult, smsChoice, smsReflection, reflectie1, reflectie2, reflectie3,
-    reisModus, verdieping, reisgenotenGezien,
+    reisModus, reisgenotenGezien,
   ]);
 
   function applyLoadedSession(data) {
@@ -2592,7 +2449,6 @@ export default function MoralMaps(){
     setWeekdoel(hydrated.weekdoel);
     setMicroJournal(hydrated.microJournal);
     setReisModus(data.reisModus || "");
-    setVerdieping(data.verdieping && typeof data.verdieping === "object" ? data.verdieping : {});
     setReisgenotenGezien(Boolean(data.reisgenotenGezien ?? bag.reisgenotenGezien));
     if (bag.selVals) setSelVals(bag.selVals);
     if (typeof bag.curDil === "number") setCurDil(bag.curDil);
@@ -2607,7 +2463,6 @@ export default function MoralMaps(){
     if (bag.bridge) setBridge({ ballast:"", meenemen:"", vinden:"", gps:"", ...bag.bridge });
     if (bag.deel3Terugblik) setDeel3Terugblik({ scharnierpunt:"", patroon:"", noorden:"", ...bag.deel3Terugblik });
     if (bag.deel3Vooruitblik) setDeel3Vooruitblik({ nalatenschap:"", richting:"", belofte:"", ...bag.deel3Vooruitblik });
-    if (typeof bag.deel3Synthese === "string") setDeel3Synthese(bag.deel3Synthese);
     if (bag.deel3Grow) setDeel3Grow({ goal:"", reality:"", options:"", will:"", ...bag.deel3Grow });
     if (bag.smsChoice) setSmsChoice(bag.smsChoice);
     if (bag.smsReflection != null) setSmsReflection(bag.smsReflection);
@@ -2759,7 +2614,7 @@ export default function MoralMaps(){
     const st = step ?? deel4Step;
     persistSession(`deel4_step_${st}`, { screen: "deel4", deel4: nextDeel4, deel4Step: st });
   }
-  function reset(){setScreen("roadtrip-landing");setReisId("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Synthese("");setDeel3Grow({goal:"",reality:"",options:"",will:""});setDeel4({...EMPTY_DEEL4});setDeel4Step(0);setDeel4PechOpen(false);setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setVerdieping({});setReisgenotenGezien(false);}
+  function reset(){setScreen("roadtrip-landing");setReisId("");setPhase(0);setSelVals([]);setCoreVals([]);setDilResp([]);setCurDil(0);setDilemmas(pickRandomDilemmas(DILEMMA_POOL, 2));setPending(null);setInsight(false);setFilter(null);setStarr({situatie:"",taak:"",actie:"",resultaat:"",reflectie:"",leidendeWaardeId:null});setSocialisatie({primair:"",secundair:"",transcultureel:"",professioneel:"",reflectie:""});setAnkerzin("");setWeekdoel("");setMicroJournal({...EMPTY_MICRO_JOURNAL});setBridge({ballast:"",meenemen:"",vinden:"",gps:""});setDeel3Terugblik({scharnierpunt:"",patroon:"",noorden:""});setDeel3Vooruitblik({nalatenschap:"",richting:"",belofte:""});setDeel3Grow({goal:"",reality:"",options:"",will:""});setDeel4({...EMPTY_DEEL4});setDeel4Step(0);setDeel4PechOpen(false);setSaved(false);setSaveErr(null);setSaveStatus(null);setShowSmsDilemma(false);setSmsChoice("");setSmsReflection("");setDeel2Step(0);setDeel3Step(0);setReflectie1("");setReflectie2("");setReflectie3("");setShowReflectie1(false);setShowReflectie2(false);setShowReflectie3(false);setCrossroadsChoice("");setCrossroadsReflectie("");setTankstop({energie:"",lek:"",nodig:""});setOmweg({tegenslag:"",bijstelling:"",lering:""});setDeel2Inzicht("");setVreemdeAnderResult(null);setContentProfile({locale:"nl",workContext:"algemeen",extraAssignment:""});setReisModus("");setReisgenotenGezien(false);}
   // Enige, volledige manier om alle lokale gegevens te verwijderen.
   function currentJourneyStage() {
     if (screen === "deel2") return `deel2_step_${deel2Step}`;
@@ -2837,50 +2692,6 @@ export default function MoralMaps(){
   }
 
   const filtered=filter?VALUES.filter(v=>v.color===filter):VALUES;
-
-  // TODO(sprint-2): verwijder het #sprint0-test scherm en hash-listener.
-  if (sprint0Test) {
-    return (
-      <div style={{ background: "#f8fafc", minHeight: "100vh", fontFamily: FONT, padding: "24px 16px 48px" }}>
-        <div style={{ maxWidth: 640, margin: "0 auto" }}>
-          <p style={{ fontSize: 11, color: "#94a3b8", marginBottom: 16 }}>Sprint 0 · tijdelijk testscherm (#sprint0-test)</p>
-          <h1 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 20px", color: "#0f172a" }}>Componenten</h1>
-          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 16, marginBottom: 16 }}>
-            <p style={{ fontSize: 10, fontWeight: 800, color: TEAL, textTransform: "uppercase", letterSpacing: 1, margin: "0 0 12px" }}>Reisgenoten</p>
-            <p style={{ fontSize: 13, color: "#334155", lineHeight: 1.65, margin: "0 0 14px", fontFamily: FONT }}>Onderweg ontmoet je drie reisgenoten. Ze beslissen niets voor je. Ze helpen je stilstaan bij wat jij vindt.</p>
-            <Reisgenoot wie="noor" />
-            <Reisgenoot wie="daan" />
-            <Reisgenoot wie="yara" />
-          </div>
-          <Verdieping
-            vraag="Voorbeeld keuzevraag"
-            type="keuze"
-            opties={[{ id: "a", label: "Optie A" }, { id: "b", label: "Optie B" }]}
-            waarde={sprint0TestState.keuze}
-            onChange={(v) => setSprint0TestState((p) => ({ ...p, keuze: v }))}
-            onSkip={() => setSprint0TestState((p) => ({ ...p, keuze: "" }))}
-          />
-          <Verdieping
-            vraag="Voorbeeld tekstvraag"
-            type="tekst"
-            waarde={sprint0TestState.tekst}
-            onChange={(v) => setSprint0TestState((p) => ({ ...p, tekst: v }))}
-            onSkip={() => setSprint0TestState((p) => ({ ...p, tekst: "" }))}
-            metSteuntje
-          />
-          <Verdieping
-            vraag="Voorbeeld schaalvraag"
-            type="schaal"
-            opties={["Helemaal niet", "Heel erg"]}
-            waarde={sprint0TestState.schaal}
-            onChange={(v) => setSprint0TestState((p) => ({ ...p, schaal: v }))}
-            onSkip={() => setSprint0TestState((p) => ({ ...p, schaal: null }))}
-          />
-          <Steuntje />
-        </div>
-      </div>
-    );
-  }
 
   if(showReflectie3) return (
     <>
@@ -3354,7 +3165,7 @@ export default function MoralMaps(){
                   <textarea value={deel3Vooruitblik.richting} onChange={e=>setDeel3Vooruitblik({...deel3Vooruitblik,richting:e.target.value})} rows={2} placeholder="Waarin wil je het komende halfjaar groeien als professional? Waarom is dat goed voor de mensen met wie je werkt?" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,lineHeight:1.6,resize:"vertical",outline:"none",fontFamily:FONT}} onFocus={e=>e.target.style.borderColor=D3_PINK} onBlur={e=>e.target.style.borderColor="#e2e8f0"}/>
                   <textarea value={deel3Vooruitblik.belofte} onChange={e=>setDeel3Vooruitblik({...deel3Vooruitblik,belofte:e.target.value})} rows={2} placeholder="Welke belofte doe je aan jezelf? En aan wie nog meer?" style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,lineHeight:1.6,resize:"vertical",outline:"none",fontFamily:FONT}} onFocus={e=>e.target.style.borderColor=D3_PINK} onBlur={e=>e.target.style.borderColor="#e2e8f0"}/>
                 </div>
-                <button type="button" onClick={()=>{setDeel3Step(3);persistSession("deel3_vooruitblik",{deel3Step:3,screen:"deel3",deel3Vooruitblik,deel3Synthese});}} style={d3NextStyle()}>Naar GROW Actieplan →</button>
+                <button type="button" onClick={()=>{setDeel3Step(3);persistSession("deel3_vooruitblik",{deel3Step:3,screen:"deel3",deel3Vooruitblik});}} style={d3NextStyle()}>Naar GROW Actieplan →</button>
               </div>
             </div>
           )}
@@ -3384,7 +3195,7 @@ export default function MoralMaps(){
               <div style={{background:"#fff",borderRadius:16,border:"1px solid #e2e8f0",padding:16}}>
                 <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                   <button onClick={async()=>{await saveProgress("deel3_done");setShowReflectie3(true);}} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:D3_PINK,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>✨ Afsluiten & opslaan</button>
-                  <button onClick={(e)=>exportPDFDeel3Portfolio({coreVals,dilResp,starr,smsDilemma:{smsChoice,smsReflection},bridge,deel3Terugblik,deel3Vooruitblik,deel3Synthese,deel3Grow,domColor,socialisatie,profile:contentProfile,reflectie3}, e.currentTarget)} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF Totaalportfolio</button>
+                  <button onClick={(e)=>exportPDFDeel3Portfolio({coreVals,dilResp,starr,smsDilemma:{smsChoice,smsReflection},bridge,deel3Terugblik,deel3Vooruitblik,deel3Grow,domColor,socialisatie,profile:contentProfile,reflectie3}, e.currentTarget)} style={{flex:1,padding:"11px",borderRadius:999,border:"none",background:"#0f172a",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:FONT}}>↓ PDF Totaalportfolio</button>
                 </div>
                 <button
                   type="button"
